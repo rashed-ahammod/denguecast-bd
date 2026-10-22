@@ -1,0 +1,52 @@
+[
+  {
+    "id": "bss_2026-08-01",
+    "url": "https://www.bssnews.net/news/410800",
+    "text": "\"During the period, (of the 371) 69 patients were hospitalised in Barishal \ndivision, 91 in Chattogram division, 46 in Dhaka division, 32 in Dhaka South \nCity Corporation (DSCC) and 57 in Dhaka North City Corporation (DNCC) areas, \n34 in Khulna division, 23 in Mymensingh division, 17 in Rajshahi division and \ntwo in Sylhet division, a Directorate General of Health Services (DGHS) \nstatement said.",
+    "expected_counts": {"BARISHAL_DIV": 69, "CHATTOGRAM_DIV": 91, "DHAKA_DIV": 46, "DSCC": 32, "DNCC": 57, "KHULNA_DIV": 34, "MYMENSINGH_DIV": 23, "RAJSHAHI_DIV": 17, "SYLHET_DIV": 2},
+    "expected_total": 371,
+    "expected_consistent": true
+  },
+  {
+    "id": "observer_2026-08-11",
+    "url": "https://observerbd.com/news/587498",
+    "text": "\"During the period, (of the 726) 75 patients were hospitalised in Barishal division, 81 in Chattogram division, 83 in Dhaka South City Corporation (DSCC) and 101 in Dhaka North City Corporation (DNCC) areas, 107 in Khulna division, 37 in Mymensingh division, 65 in Rajshahi division, 172 in Rangpur division and five in Sylhet division, a Directorate General of Health Services (DGHS) statement said.",
+    "expected_counts": {"BARISHAL_DIV": 75, "CHATTOGRAM_DIV": 81, "DSCC": 83, "DNCC": 101, "KHULNA_DIV": 107, "MYMENSINGH_DIV": 37, "RAJSHAHI_DIV": 65, "RANGPUR_DIV": 172, "SYLHET_DIV": 5},
+    "expected_total": 726,
+    "expected_consistent": true
+  },
+  {
+    "id": "bss_2026-08-15",
+    "url": "https://www.bssnews.net/news/414847",
+    "text": "\"During the period, (of the 730) 017 patients were hospitalised in Barishal division, 89 in Chattogram division, 66 in Dhaka division, 137 in Dhaka South City Corporation (DSCC) and 171 in Dhaka North City Corporation (DNCC) areas, 123 in Khulna division, 27 in Mymensingh division and 10 in Rangpur division, a Directorate General of Health Services (DGHS) statement said today.",
+    "expected_counts": {"BARISHAL_DIV": 17, "CHATTOGRAM_DIV": 89, "DHAKA_DIV": 66, "DSCC": 137, "DNCC": 171, "KHULNA_DIV": 123, "MYMENSINGH_DIV": 27, "RANGPUR_DIV": 10},
+    "expected_total": 730,
+    "expected_consistent": false,
+    "comment": "Areas sum to 640, not 730, and Barishal is printed as '017'. Shows why reprints must be checked against the stated total."
+  },
+  {
+    "id": "ittefaq_2026-08-22",
+    "url": "https://en.ittefaq.com.bd/17824/702-fresh-cases-of-dengue-inflection-reported",
+    "text": "\"During the period, (of the 702) 115 patients were hospitalised in Barishal division, 107 in Chattogram division, 47 in Dhaka division, 88 in Dhaka South City Corporation (DSCC) and 123 in Dhaka North City Corporation (DNCC) areas, 114 in Khulna division, 38 in Mymensingh division, 54 in Rajshahi division and 15 in Rangpur division, a Directorate General of Health Services (DGHS) statement said.",
+    "expected_counts": {"BARISHAL_DIV": 115, "CHATTOGRAM_DIV": 107, "DHAKA_DIV": 47, "DSCC": 88, "DNCC": 123, "KHULNA_DIV": 114, "MYMENSINGH_DIV": 38, "RAJSHAHI_DIV": 54, "RANGPUR_DIV": 15},
+    "expected_total": 702,
+    "expected_consistent": false,
+    "comment": "Areas sum to 701, not 702; one area (probably Sylhet) is missing from the reprint."
+  },
+  {
+    "id": "fe_2026-01-12",
+    "url": "https://today.thefinancialexpress.com.bd/print/one-dies-of-dengue-1768236954",
+    "text": "According to a DGHS statement, of the 33 fresh cases, seven were hospitalised in the Barishal division, 12 in Chattogram division, two in Dhaka division (excluding the capital), three in the Dhaka South City Corporation (DSCC), four in the Dhaka North City Corporation (DNCC) areas, two in Khulna division, one in Mymensingh division, and two in Rajshahi division.",
+    "expected_counts": {"BARISHAL_DIV": 7, "CHATTOGRAM_DIV": 12, "DHAKA_DIV": 2, "DSCC": 3, "DNCC": 4, "KHULNA_DIV": 2, "MYMENSINGH_DIV": 1, "RAJSHAHI_DIV": 2},
+    "expected_total": 33,
+    "expected_consistent": true
+  },
+  {
+    "id": "fe_2026-03-30",
+    "url": "https://today.thefinancialexpress.com.bd/print/23-dengue-cases-detected-1774894387",
+    "text": "\"We recorded 23 fresh cases in 24 hours ending at 8:00 am on Monday,\"according to DGHS. \"Out of the 23 fresh cases, 11 were hospitalised in Barishal division, three in Chattogram, six in Dhaka, two in Dhaka South City Corporation, and one in Khulna,\" it added.",
+    "expected_counts": {"BARISHAL_DIV": 11, "CHATTOGRAM_DIV": 3, "DHAKA_DIV": 6, "DSCC": 2, "KHULNA_DIV": 1},
+    "expected_total": 23,
+    "expected_consistent": true
+  }
+]

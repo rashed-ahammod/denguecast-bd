@@ -1,0 +1,10 @@
+[project]
+name = "denguecast"
+version = "0.1.0"
+description = "DengueCast BD: probabilistic dengue admission forecasts for Bangladesh"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "tests"]
+testpaths = ["tests"]

@@ -1,0 +1,25 @@
+name: probe
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: data-commit
+  cancel-in-progress: false
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: python -m denguecast.probe
+      - name: Commit probe report and raw downloads
+        run: |
+          git config user.name "denguecast-bot"
+          git config user.email "denguecast-bot@users.noreply.github.com"
+          git add docs/probe_report.md data/
+          git diff --cached --quiet || git commit -m "probe: data-access report $(date -u +%Y-%m-%dT%H:%MZ)"
+          git pull --rebase && git push

@@ -1,0 +1,29 @@
+name: scrape
+on:
+  schedule:
+    - cron: "0 16 * * *"   # 22:00 BDT daily
+    - cron: "0 3 * * *"    # 09:00 BDT retry
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: data-commit
+  cancel-in-progress: false
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: python -m denguecast.scrape
+      - run: python -m denguecast.ingest_manual || echo "manual ingest reported problems (see log)"
+      - name: Commit raw snapshots and archive
+        run: |
+          git config user.name "denguecast-bot"
+          git config user.email "denguecast-bot@users.noreply.github.com"
+          git add data/
+          git diff --cached --quiet || git commit -m "data: scrape $(date -u +%Y-%m-%dT%H:%MZ)"
+          git pull --rebase && git push
