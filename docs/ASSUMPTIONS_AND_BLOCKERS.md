@@ -37,6 +37,12 @@ Mendeley cgwjshkx5k v2 (monthly, optional cross-check): downloaded, CC BY 4.0; i
 
 DGHS dashboard: HTTP 403 (7 bytes) to an automated request from this laptop. No division-table parser is possible from what was retrieved; live data relies on manual entry (guide Section 14 fallback).
 
+## Step 3: 2022-2023 data report (2026-10-25)
+
+`python -m denguecast.ingest_mendeley` (epi years 2022-2023): 6,552 rows appended (8 divisions + constructed NATIONAL, 728 days each, 2022-01-02..2023-12-30); a second run appended 0 (idempotent). `get_data` returns epi years 2022 and 2023 only.
+
+Weekly series (`live_forecast.weekly_series`, as of 2024-01-15; file `results/data_report/weekly_2022_2023.csv`): 104 complete weeks for each of the 9 backtest units; 0 missing, 0 recovered; 0 rule-7 consistency flags (expected: NATIONAL is the sum of the units). Rule 9 flagged 167 unit-weeks as outliers (5 x MAD over the trailing 8 weeks), mostly in the steep growth phase; models get the clipped value as input, truth is unchanged. This is the pre-registered rule and is reported, not changed.
+
 ## Assumptions (to confirm or record in the pre-registration before lock)
 
 | ID | Assumption | Why | Risk |
@@ -59,7 +65,7 @@ DGHS dashboard: HTTP 403 (7 bytes) to an automated request from this laptop. No 
 
 ## Team decisions D1-D9 (pre-registration amendments; to be written into the pre-registration before lock)
 
-Status: **awaiting team confirmation at GATE 1.** Source: `DENGUECAST_GUIDE.md` Section 5.
+Status: D1-D9 confirmed by the team on 2026-10-25 (GATE 1); D10-D11 decided at GATE 2 on 2026-10-25, before any 2024 data was ingested or inspected. D7's date has passed; the lock now happens when the team locks at GATE 3, still before any 2024 ingestion.
 
 | ID | Decision |
 | --- | --- |
@@ -72,6 +78,8 @@ Status: **awaiting team confirmation at GATE 1.** Source: `DENGUECAST_GUIDE.md` 
 | D7 | Lock date = Saturday 24 October 2026, before any 2024 data is ingested. |
 | D8 | Tuning budget: at most 20 Optuna trials (pre-registration allows up to 50). |
 | D9 | Model A refit every 4 weeks within the replay; B3 refit every week. |
+| D10 | **Backtest units adapted to the Mendeley data:** the 7 divisions other than Dhaka, `DHAKA_DIV_TOTAL` (Dhaka division including DNCC and DSCC; the only Dhaka series in the data), and `NATIONAL` constructed openly as the daily sum of the 8 division files (every such row carries a note saying so). `DHAKA_DIV`, `DNCC`, `DSCC` are live-only; live data also yields `DHAKA_DIV_TOTAL = DHAKA_DIV + DNCC + DSCC` when all parts are observed. Final truth falls back to the sum of 7 daily values when no epi-week value exists. |
+| D11 | **First live forecast published late, flagged.** The origin 2026-10-24 forecast was not made before Sun 25 Oct 12:00 BDT. It will be published with its real creation time and `late: true`, and the miss is recorded in `docs/DEVIATIONS.md`. Never back-dated. |
 
 ## Blockers
 

@@ -17,7 +17,7 @@ import pandas as pd
 from . import archive, config
 from .epiweek import add_epiweek_columns
 
-SOURCE_PRIORITY = ["dghs_dashboard_epiweek", "dghs_press_release", "who_searo_bulletin", "newspaper"]
+SOURCE_PRIORITY = ["dghs_dashboard_epiweek", "dghs_press_release", "who_searo_bulletin", "newspaper", "mendeley_z5mvwrfgsz"]
 WEEKLY_COLS = ["unit", "epi_year", "epi_week", "week_end", "value", "flag"]
 
 
@@ -183,22 +183,77 @@ def flag_outliers(weekly: pd.DataFrame, log: QualityLog, window: int = 8, k: flo
     return out
 
 
+# ------------------------------------------------------- D10: whole Dhaka division
+def add_dhaka_div_total(weekly: pd.DataFrame, log: QualityLog) -> pd.DataFrame:
+    """Add DHAKA_DIV_TOTAL = DHAKA_DIV + DNCC + DSCC (or DHAKA_DIV + DHAKA_CITY)
+    for weeks where every part is observed and no DHAKA_DIV_TOTAL row exists.
+    A week with any part missing gets a missing DHAKA_DIV_TOTAL (never a partial sum)."""
+    total = config.DHAKA_DIV_TOTAL
+    parts = weekly[weekly["unit"].isin(["DHAKA_DIV", "DNCC", "DSCC", config.MERGED_DHAKA_CITY])]
+    if parts.empty:
+        return weekly
+    have = set(weekly.loc[weekly["unit"] == total, "week_end"])
+    rows = []
+    for wk, g in parts.groupby("week_end"):
+        if wk in have:
+            continue
+        units = set(g["unit"])
+        complete = "DHAKA_DIV" in units and ({"DNCC", "DSCC"} <= units or config.MERGED_DHAKA_CITY in units)
+        city = ["DNCC", "DSCC"] if {"DNCC", "DSCC"} <= units else [config.MERGED_DHAKA_CITY]
+        use = g[g["unit"].isin(["DHAKA_DIV"] + city)]
+        value = use["value"].sum(min_count=len(use)) if complete else np.nan
+        flags = ";".join(sorted(set(f for f in use["flag"] if f)))
+        if pd.isna(value):
+            flags = "missing"
+            log.add("D10", total, str(wk), "left missing", f"parts present: {sorted(units)}")
+        r = g.iloc[0]
+        rows.append({"unit": total, "epi_year": r["epi_year"], "epi_week": r["epi_week"], "week_end": wk,
+                     "value": value, "flag": flags})
+    if not rows:
+        return weekly
+    return pd.concat([weekly, pd.DataFrame(rows)], ignore_index=True).sort_values(["unit", "week_end"]).reset_index(drop=True)
+
+
 # --------------------------------------------------------------- rules 5, 6
-def final_truth(unit: str, week_end_date, metric: str, evaluated_at, **get_data_kwargs) -> tuple[float, bool]:
-    """Rule 5 and 6. Truth for an epi week = its weekly value as known 14 days
-    after the week ends, taking sources in priority order. Returns
-    (value, provisional). Provisional = evaluated before the 14 days passed."""
-    week_end_date = pd.Timestamp(week_end_date).date()
-    target_time = pd.Timestamp(week_end_date + timedelta(days=14), tz="UTC") + pd.Timedelta(hours=23, minutes=59)
+def _truth_time(week_end_date):
+    return pd.Timestamp(week_end_date + timedelta(days=14), tz="UTC") + pd.Timedelta(hours=23, minutes=59)
+
+
+def final_truth_table(units, week_ends, metric: str, evaluated_at, **get_data_kwargs) -> pd.DataFrame:
+    """Rules 5 and 6 for many (unit, week) pairs. For each epi week, truth is
+    its weekly value as known 14 days after the week ends. Sources are taken in
+    SOURCE_PRIORITY order; within a source a published epi-week value is used,
+    otherwise the sum of its 7 daily values if all 7 are present. Returns
+    unit, week_end, value, provisional, truth_source."""
     eval_t = archive.to_utc(evaluated_at)
-    provisional = eval_t < target_time
-    as_of = min(target_time, eval_t)
-    for src in SOURCE_PRIORITY:
-        df = archive.get_data(as_of=as_of, metrics=[metric], units=[unit], period="epiweek", sources=[src], **get_data_kwargs)
-        hit = df[df["reference_date"] == str(week_end_date)]
-        if not hit.empty and pd.notna(hit["value"].iloc[0]):
-            return float(hit["value"].iloc[0]), provisional
-    return float("nan"), provisional
+    out = []
+    for wk in sorted({pd.Timestamp(w).date() for w in week_ends}):
+        target_time = _truth_time(wk)
+        as_of = min(target_time, eval_t)
+        df = archive.get_data(as_of=as_of, metrics=[metric], units=list(units), **get_data_kwargs)
+        days = {str(wk - timedelta(days=i)) for i in range(7)}
+        ep = df[(df["period"] == "epiweek") & (df["reference_date"] == str(wk))]
+        dy = df[(df["period"] == "day") & df["reference_date"].isin(days)]
+        for u in units:
+            value, used = float("nan"), ""
+            for src in SOURCE_PRIORITY:
+                e = ep[(ep["unit"] == u) & (ep["source"] == src)]["value"].dropna()
+                if len(e):
+                    value, used = float(e.iloc[0]), src
+                    break
+                d = dy[(dy["unit"] == u) & (dy["source"] == src)]
+                if d["reference_date"].nunique() == 7 and d["value"].notna().all() and len(d) == 7:
+                    value, used = float(d["value"].sum()), src + " (7 daily)"
+                    break
+            out.append({"unit": u, "week_end": wk, "value": value, "provisional": bool(eval_t < target_time),
+                        "truth_source": used})
+    return pd.DataFrame(out, columns=["unit", "week_end", "value", "provisional", "truth_source"])
+
+
+def final_truth(unit: str, week_end_date, metric: str, evaluated_at, **get_data_kwargs) -> tuple[float, bool]:
+    """Single-value form of final_truth_table. Returns (value, provisional)."""
+    t = final_truth_table([unit], [week_end_date], metric, evaluated_at, **get_data_kwargs)
+    return float(t["value"].iloc[0]), bool(t["provisional"].iloc[0])
 
 
 # ------------------------------------------------------------------- rule 10

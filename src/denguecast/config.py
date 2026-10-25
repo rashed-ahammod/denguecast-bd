@@ -37,6 +37,16 @@ UNITS = [
 SUBNATIONAL_UNITS = [u for u in UNITS if u != "NATIONAL"]
 # Coarser unit used by cleaning rule 8 when DNCC and DSCC are not reported separately.
 MERGED_DHAKA_CITY = "DHAKA_CITY"
+# Whole Dhaka division including DNCC and DSCC (amendment D10). The only Dhaka
+# unit in the Mendeley 2022-2024 data; derived for live data as
+# DHAKA_DIV + DNCC + DSCC (or DHAKA_DIV + DHAKA_CITY).
+DHAKA_DIV_TOTAL = "DHAKA_DIV_TOTAL"
+DERIVED_UNITS = {MERGED_DHAKA_CITY, DHAKA_DIV_TOTAL}
+# Units evaluated in the 2023 validation and 2024 test replays (D10).
+BACKTEST_UNITS = [
+    "NATIONAL", DHAKA_DIV_TOTAL, "CHATTOGRAM_DIV", "BARISHAL_DIV", "KHULNA_DIV",
+    "RAJSHAHI_DIV", "RANGPUR_DIV", "MYMENSINGH_DIV", "SYLHET_DIV",
+]
 
 METRICS = ("admissions", "currently_admitted", "deaths", "cumulative_admissions")
 

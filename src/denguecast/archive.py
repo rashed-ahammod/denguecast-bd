@@ -36,7 +36,7 @@ COLUMNS = [
     "note",
 ]
 KEY = ["unit", "reference_date", "period", "metric"]
-VALID_UNITS = set(config.UNITS) | {config.MERGED_DHAKA_CITY}
+VALID_UNITS = set(config.UNITS) | config.DERIVED_UNITS
 VALID_PERIODS = {"day", "epiweek"}
 VALID_VINTAGES = {"live", "first_reported", "final"}
 VALID_BASES = {"retrieved", "published", "assumed"}
@@ -98,7 +98,7 @@ def save_raw_snapshot(
             "url": url,
             "retrieved_at": retrieved_at.isoformat(),
             "sha256": digest,
-            "path": str(path.relative_to(config.REPO_ROOT) if path.is_relative_to(config.REPO_ROOT) else path),
+            "path": (path.relative_to(config.REPO_ROOT) if path.is_relative_to(config.REPO_ROOT) else path).as_posix(),
             "bytes": len(content),
             "duplicate_of_existing": duplicate,
         }],

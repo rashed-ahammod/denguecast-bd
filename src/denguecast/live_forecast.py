@@ -49,6 +49,7 @@ def weekly_series(as_of, archive_file: Path | None = None, log: cleaning.Quality
     allw["_rank"] = allw["source_kind"].map({"epiweek": 0, "daily": 1})
     allw = allw.sort_values("_rank").drop_duplicates(["unit", "week_end"]).drop(columns=["_rank", "source_kind"])
     allw = cleaning.merge_city_corporations_if_incomplete(allw, log)
+    allw = cleaning.add_dhaka_div_total(allw, log)
     allw = cleaning.flag_outliers(allw, log)
     return allw
 
