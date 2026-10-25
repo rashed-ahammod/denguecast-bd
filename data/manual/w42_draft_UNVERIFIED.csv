@@ -1,0 +1,31 @@
+report_date,unit,admissions,stated_total,source_url,entered_by,note
+2026-10-21,DSCC,211,1373,https://thereport.live/health/7-more-die-of-dengue-1373-hospitalised-in-24-hours/42293,claude-draft,UNVERIFIED draft from reprint; bulletin Wed; needs two-person check
+2026-10-21,DNCC,71,1373,https://thereport.live/health/7-more-die-of-dengue-1373-hospitalised-in-24-hours/42293,claude-draft,UNVERIFIED
+2026-10-21,DHAKA_DIV,320,1373,https://thereport.live/health/7-more-die-of-dengue-1373-hospitalised-in-24-hours/42293,claude-draft,UNVERIFIED; "outside city corporations in Dhaka Division"
+2026-10-21,BARISHAL_DIV,225,1373,https://thereport.live/health/7-more-die-of-dengue-1373-hospitalised-in-24-hours/42293,claude-draft,UNVERIFIED
+2026-10-21,CHATTOGRAM_DIV,197,1373,https://thereport.live/health/7-more-die-of-dengue-1373-hospitalised-in-24-hours/42293,claude-draft,UNVERIFIED
+2026-10-21,KHULNA_DIV,155,1373,https://thereport.live/health/7-more-die-of-dengue-1373-hospitalised-in-24-hours/42293,claude-draft,UNVERIFIED
+2026-10-21,RAJSHAHI_DIV,111,1373,https://thereport.live/health/7-more-die-of-dengue-1373-hospitalised-in-24-hours/42293,claude-draft,UNVERIFIED
+2026-10-21,MYMENSINGH_DIV,45,1373,https://thereport.live/health/7-more-die-of-dengue-1373-hospitalised-in-24-hours/42293,claude-draft,UNVERIFIED
+2026-10-21,RANGPUR_DIV,28,1373,https://thereport.live/health/7-more-die-of-dengue-1373-hospitalised-in-24-hours/42293,claude-draft,UNVERIFIED
+2026-10-21,SYLHET_DIV,10,1373,https://thereport.live/health/7-more-die-of-dengue-1373-hospitalised-in-24-hours/42293,claude-draft,UNVERIFIED
+2026-10-23,BARISHAL_DIV,159,1299,https://www.dailywaadaa.com/health/2026/10/23/3-die-of-dengue-1299-hospitalised-overnight,claude-draft,UNVERIFIED draft from reprint; bulletin Fri; needs two-person check
+2026-10-23,CHATTOGRAM_DIV,219,1299,https://www.dailywaadaa.com/health/2026/10/23/3-die-of-dengue-1299-hospitalised-overnight,claude-draft,UNVERIFIED
+2026-10-23,DHAKA_DIV,274,1299,https://www.dailywaadaa.com/health/2026/10/23/3-die-of-dengue-1299-hospitalised-overnight,claude-draft,UNVERIFIED; "Dhaka division" listed separately from DNCC/DSCC (A3)
+2026-10-23,DSCC,131,1299,https://www.dailywaadaa.com/health/2026/10/23/3-die-of-dengue-1299-hospitalised-overnight,claude-draft,UNVERIFIED
+2026-10-23,DNCC,116,1299,https://www.dailywaadaa.com/health/2026/10/23/3-die-of-dengue-1299-hospitalised-overnight,claude-draft,UNVERIFIED
+2026-10-23,KHULNA_DIV,147,1299,https://www.dailywaadaa.com/health/2026/10/23/3-die-of-dengue-1299-hospitalised-overnight,claude-draft,UNVERIFIED
+2026-10-23,MYMENSINGH_DIV,100,1299,https://www.dailywaadaa.com/health/2026/10/23/3-die-of-dengue-1299-hospitalised-overnight,claude-draft,UNVERIFIED
+2026-10-23,RAJSHAHI_DIV,113,1299,https://www.dailywaadaa.com/health/2026/10/23/3-die-of-dengue-1299-hospitalised-overnight,claude-draft,UNVERIFIED
+2026-10-23,RANGPUR_DIV,38,1299,https://www.dailywaadaa.com/health/2026/10/23/3-die-of-dengue-1299-hospitalised-overnight,claude-draft,UNVERIFIED
+2026-10-23,SYLHET_DIV,2,1299,https://www.dailywaadaa.com/health/2026/10/23/3-die-of-dengue-1299-hospitalised-overnight,claude-draft,UNVERIFIED
+2026-10-24,BARISHAL_DIV,252,1898,https://bdnews24.com/health/9ng4w15qw3,claude-draft,UNVERIFIED; matches dailywaadaa.com 2026/10/24 reprint
+2026-10-24,CHATTOGRAM_DIV,232,1898,https://bdnews24.com/health/9ng4w15qw3,claude-draft,UNVERIFIED
+2026-10-24,DHAKA_DIV,281,1898,https://bdnews24.com/health/9ng4w15qw3,claude-draft,UNVERIFIED; "elsewhere in Dhaka Division"
+2026-10-24,DSCC,341,1898,https://bdnews24.com/health/9ng4w15qw3,claude-draft,UNVERIFIED
+2026-10-24,DNCC,159,1898,https://bdnews24.com/health/9ng4w15qw3,claude-draft,UNVERIFIED
+2026-10-24,KHULNA_DIV,359,1898,https://bdnews24.com/health/9ng4w15qw3,claude-draft,UNVERIFIED
+2026-10-24,MYMENSINGH_DIV,75,1898,https://bdnews24.com/health/9ng4w15qw3,claude-draft,UNVERIFIED
+2026-10-24,RAJSHAHI_DIV,141,1898,https://bdnews24.com/health/9ng4w15qw3,claude-draft,UNVERIFIED
+2026-10-24,RANGPUR_DIV,51,1898,https://bdnews24.com/health/9ng4w15qw3,claude-draft,UNVERIFIED
+2026-10-24,SYLHET_DIV,7,1898,https://bdnews24.com/health/9ng4w15qw3,claude-draft,UNVERIFIED
