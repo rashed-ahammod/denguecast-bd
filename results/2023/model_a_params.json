@@ -1,0 +1,11 @@
+{
+  "params": {
+    "learning_rate": 0.07021102216769405,
+    "num_leaves": 25,
+    "min_data_in_leaf": 14,
+    "feature_fraction": 0.9850829775779278,
+    "lambda_l2": 5.8141446684771445,
+    "n_estimators": 2000
+  },
+  "early_stop_weeks": 8
+}

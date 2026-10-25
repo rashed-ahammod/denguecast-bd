@@ -1,0 +1,234 @@
+{
+  "best_params": {
+    "learning_rate": 0.07021102216769405,
+    "num_leaves": 25,
+    "min_data_in_leaf": 14,
+    "feature_fraction": 0.9850829775779278,
+    "lambda_l2": 5.8141446684771445,
+    "n_estimators": 2000
+  },
+  "early_stop_weeks": 8,
+  "best_mean_wis": 629.9869271973213,
+  "trials": [
+    {
+      "number": 0,
+      "value": 808.5538829726786,
+      "params": {
+        "learning_rate": 0.016570882388448074,
+        "num_leaves": 31,
+        "min_data_in_leaf": 98,
+        "feature_fraction": 0.6355596086592517,
+        "lambda_l2": 4.792898596801816
+      }
+    },
+    {
+      "number": 1,
+      "value": 777.0099748469269,
+      "params": {
+        "learning_rate": 0.09717409266827062,
+        "num_leaves": 19,
+        "min_data_in_leaf": 92,
+        "feature_fraction": 0.8233000459463433,
+        "lambda_l2": 7.832294684757612
+      }
+    },
+    {
+      "number": 2,
+      "value": 660.844349176942,
+      "params": {
+        "learning_rate": 0.02006672918617037,
+        "num_leaves": 30,
+        "min_data_in_leaf": 36,
+        "feature_fraction": 0.9576353844058,
+        "lambda_l2": 0.48175102712852635
+      }
+    },
+    {
+      "number": 3,
+      "value": 673.247096793673,
+      "params": {
+        "learning_rate": 0.027865551497666365,
+        "num_leaves": 40,
+        "min_data_in_leaf": 43,
+        "feature_fraction": 0.877797231979715,
+        "lambda_l2": 9.233680820436188
+      }
+    },
+    {
+      "number": 4,
+      "value": 655.3848119967242,
+      "params": {
+        "learning_rate": 0.010729835592155523,
+        "num_leaves": 14,
+        "min_data_in_leaf": 31,
+        "feature_fraction": 0.8571587799100685,
+        "lambda_l2": 2.3593360077291328
+      }
+    },
+    {
+      "number": 5,
+      "value": 644.4921346543597,
+      "params": {
+        "learning_rate": 0.09265434057712517,
+        "num_leaves": 16,
+        "min_data_in_leaf": 14,
+        "feature_fraction": 0.7881804586451416,
+        "lambda_l2": 6.825774831729245
+      }
+    },
+    {
+      "number": 6,
+      "value": 701.0430848302277,
+      "params": {
+        "learning_rate": 0.07575009105024426,
+        "num_leaves": 46,
+        "min_data_in_leaf": 57,
+        "feature_fraction": 0.7868022234069324,
+        "lambda_l2": 2.5740060010953156
+      }
+    },
+    {
+      "number": 7,
+      "value": 692.4131346801821,
+      "params": {
+        "learning_rate": 0.03221278549982785,
+        "num_leaves": 40,
+        "min_data_in_leaf": 54,
+        "feature_fraction": 0.6828720000859021,
+        "lambda_l2": 4.508835604741419
+      }
+    },
+    {
+      "number": 8,
+      "value": 648.6993439978154,
+      "params": {
+        "learning_rate": 0.087082093408422,
+        "num_leaves": 25,
+        "min_data_in_leaf": 12,
+        "feature_fraction": 0.699638336623663,
+        "lambda_l2": 2.1098344092956567
+      }
+    },
+    {
+      "number": 9,
+      "value": 756.0938007151752,
+      "params": {
+        "learning_rate": 0.015945080725137974,
+        "num_leaves": 46,
+        "min_data_in_leaf": 77,
+        "feature_fraction": 0.9418209397653827,
+        "lambda_l2": 0.8434878604219853
+      }
+    },
+    {
+      "number": 10,
+      "value": 649.3368698407901,
+      "params": {
+        "learning_rate": 0.09146653749314788,
+        "num_leaves": 24,
+        "min_data_in_leaf": 15,
+        "feature_fraction": 0.7027172230801282,
+        "lambda_l2": 9.05346714280715
+      }
+    },
+    {
+      "number": 11,
+      "value": 665.6848032397698,
+      "params": {
+        "learning_rate": 0.09026940611853704,
+        "num_leaves": 26,
+        "min_data_in_leaf": 20,
+        "feature_fraction": 0.6451195160431262,
+        "lambda_l2": 1.5430799136339735
+      }
+    },
+    {
+      "number": 12,
+      "value": 642.0442380295135,
+      "params": {
+        "learning_rate": 0.05651172669289727,
+        "num_leaves": 9,
+        "min_data_in_leaf": 15,
+        "feature_fraction": 0.8872246673994402,
+        "lambda_l2": 6.473599888302339
+      }
+    },
+    {
+      "number": 13,
+      "value": 636.6077252550019,
+      "params": {
+        "learning_rate": 0.055546498342494886,
+        "num_leaves": 15,
+        "min_data_in_leaf": 21,
+        "feature_fraction": 0.9701661126194363,
+        "lambda_l2": 7.471493552246616
+      }
+    },
+    {
+      "number": 14,
+      "value": 661.4890727686128,
+      "params": {
+        "learning_rate": 0.04869640861306519,
+        "num_leaves": 11,
+        "min_data_in_leaf": 35,
+        "feature_fraction": 0.9881175767860538,
+        "lambda_l2": 7.0177895861366455
+      }
+    },
+    {
+      "number": 15,
+      "value": 629.9869271973213,
+      "params": {
+        "learning_rate": 0.07021102216769405,
+        "num_leaves": 25,
+        "min_data_in_leaf": 14,
+        "feature_fraction": 0.9850829775779278,
+        "lambda_l2": 5.8141446684771445
+      }
+    },
+    {
+      "number": 16,
+      "value": 643.1413535642596,
+      "params": {
+        "learning_rate": 0.04331348452406188,
+        "num_leaves": 25,
+        "min_data_in_leaf": 23,
+        "feature_fraction": 0.9756498019948443,
+        "lambda_l2": 8.271280577611908
+      }
+    },
+    {
+      "number": 17,
+      "value": 647.865693270134,
+      "params": {
+        "learning_rate": 0.08386722297234771,
+        "num_leaves": 34,
+        "min_data_in_leaf": 25,
+        "feature_fraction": 0.9025112973952527,
+        "lambda_l2": 7.0208938085284665
+      }
+    },
+    {
+      "number": 18,
+      "value": 643.6855633109426,
+      "params": {
+        "learning_rate": 0.0749065024790066,
+        "num_leaves": 18,
+        "min_data_in_leaf": 25,
+        "feature_fraction": 0.9635121093855677,
+        "lambda_l2": 4.096211302464695
+      }
+    },
+    {
+      "number": 19,
+      "value": 681.7974723379906,
+      "params": {
+        "learning_rate": 0.04450446805151832,
+        "num_leaves": 18,
+        "min_data_in_leaf": 46,
+        "feature_fraction": 0.9605486533720222,
+        "lambda_l2": 9.6192765664211
+      }
+    }
+  ]
+}

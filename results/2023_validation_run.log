@@ -1,0 +1,87 @@
+Replay season 2023: building weekly histories as known at each origin ...
+  52 origins
+Tuning Model A: 20 trials
+  trial 0: mean WIS 808.554 (138s) {'learning_rate': 0.016570882388448074, 'num_leaves': 31, 'min_data_in_leaf': 98, 'feature_fraction': 0.6355596086592517, 'lambda_l2': 4.792898596801816, 'n_estimators': 2000}
+  trial 1: mean WIS 777.010 (95s) {'learning_rate': 0.09717409266827062, 'num_leaves': 19, 'min_data_in_leaf': 92, 'feature_fraction': 0.8233000459463433, 'lambda_l2': 7.832294684757612, 'n_estimators': 2000}
+  trial 2: mean WIS 660.844 (203s) {'learning_rate': 0.02006672918617037, 'num_leaves': 30, 'min_data_in_leaf': 36, 'feature_fraction': 0.9576353844058, 'lambda_l2': 0.48175102712852635, 'n_estimators': 2000}
+  trial 3: mean WIS 673.247 (143s) {'learning_rate': 0.027865551497666365, 'num_leaves': 40, 'min_data_in_leaf': 43, 'feature_fraction': 0.877797231979715, 'lambda_l2': 9.233680820436188, 'n_estimators': 2000}
+  trial 4: mean WIS 655.385 (213s) {'learning_rate': 0.010729835592155523, 'num_leaves': 14, 'min_data_in_leaf': 31, 'feature_fraction': 0.8571587799100685, 'lambda_l2': 2.3593360077291328, 'n_estimators': 2000}
+  trial 5: mean WIS 644.492 (178s) {'learning_rate': 0.09265434057712517, 'num_leaves': 16, 'min_data_in_leaf': 14, 'feature_fraction': 0.7881804586451416, 'lambda_l2': 6.825774831729245, 'n_estimators': 2000}
+  trial 6: mean WIS 701.043 (155s) {'learning_rate': 0.07575009105024426, 'num_leaves': 46, 'min_data_in_leaf': 57, 'feature_fraction': 0.7868022234069324, 'lambda_l2': 2.5740060010953156, 'n_estimators': 2000}
+  trial 7: mean WIS 692.413 (132s) {'learning_rate': 0.03221278549982785, 'num_leaves': 40, 'min_data_in_leaf': 54, 'feature_fraction': 0.6828720000859021, 'lambda_l2': 4.508835604741419, 'n_estimators': 2000}
+  trial 8: mean WIS 648.699 (133s) {'learning_rate': 0.087082093408422, 'num_leaves': 25, 'min_data_in_leaf': 12, 'feature_fraction': 0.699638336623663, 'lambda_l2': 2.1098344092956567, 'n_estimators': 2000}
+  trial 9: mean WIS 756.094 (126s) {'learning_rate': 0.015945080725137974, 'num_leaves': 46, 'min_data_in_leaf': 77, 'feature_fraction': 0.9418209397653827, 'lambda_l2': 0.8434878604219853, 'n_estimators': 2000}
+  trial 10: mean WIS 649.337 (113s) {'learning_rate': 0.09146653749314788, 'num_leaves': 24, 'min_data_in_leaf': 15, 'feature_fraction': 0.7027172230801282, 'lambda_l2': 9.05346714280715, 'n_estimators': 2000}
+  trial 11: mean WIS 665.685 (193s) {'learning_rate': 0.09026940611853704, 'num_leaves': 26, 'min_data_in_leaf': 20, 'feature_fraction': 0.6451195160431262, 'lambda_l2': 1.5430799136339735, 'n_estimators': 2000}
+  trial 12: mean WIS 642.044 (306s) {'learning_rate': 0.05651172669289727, 'num_leaves': 9, 'min_data_in_leaf': 15, 'feature_fraction': 0.8872246673994402, 'lambda_l2': 6.473599888302339, 'n_estimators': 2000}
+  trial 13: mean WIS 636.608 (349s) {'learning_rate': 0.055546498342494886, 'num_leaves': 15, 'min_data_in_leaf': 21, 'feature_fraction': 0.9701661126194363, 'lambda_l2': 7.471493552246616, 'n_estimators': 2000}
+  trial 14: mean WIS 661.489 (388s) {'learning_rate': 0.04869640861306519, 'num_leaves': 11, 'min_data_in_leaf': 35, 'feature_fraction': 0.9881175767860538, 'lambda_l2': 7.0177895861366455, 'n_estimators': 2000}
+  trial 15: mean WIS 629.987 (547s) {'learning_rate': 0.07021102216769405, 'num_leaves': 25, 'min_data_in_leaf': 14, 'feature_fraction': 0.9850829775779278, 'lambda_l2': 5.8141446684771445, 'n_estimators': 2000}
+  trial 16: mean WIS 643.141 (354s) {'learning_rate': 0.04331348452406188, 'num_leaves': 25, 'min_data_in_leaf': 23, 'feature_fraction': 0.9756498019948443, 'lambda_l2': 8.271280577611908, 'n_estimators': 2000}
+  trial 17: mean WIS 647.866 (351s) {'learning_rate': 0.08386722297234771, 'num_leaves': 34, 'min_data_in_leaf': 25, 'feature_fraction': 0.9025112973952527, 'lambda_l2': 7.0208938085284665, 'n_estimators': 2000}
+  trial 18: mean WIS 643.686 (269s) {'learning_rate': 0.0749065024790066, 'num_leaves': 18, 'min_data_in_leaf': 25, 'feature_fraction': 0.9635121093855677, 'lambda_l2': 4.096211302464695, 'n_estimators': 2000}
+  trial 19: mean WIS 681.797 (465s) {'learning_rate': 0.04450446805151832, 'num_leaves': 18, 'min_data_in_leaf': 46, 'feature_fraction': 0.9605486533720222, 'lambda_l2': 9.6192765664211, 'n_estimators': 2000}
+Running models ...
+breakdown level          model scale    n   mean_wis         mae    cov50    cov90  relative_wis
+      all   all             b3 count 1710 370.984164  685.937961 0.478947 0.750877      0.839166
+      all   all             b3 log1p 1710   0.424292    0.701522 0.478947 0.750877      0.893990
+      all   all       ensemble count 1710 317.776048  512.602591 0.471345 0.714035      0.718809
+      all   all       ensemble log1p 1710   0.398661    0.658773 0.471345 0.714035      0.839985
+      all   all        model_a count 1710 656.363171  867.346921 0.311111 0.607602      1.484694
+      all   all        model_a log1p 1710   0.493538    0.769744 0.311111 0.607602      1.039892
+      all   all    persistence count 1710 442.086607  596.150585 0.428655 0.769591      1.000000
+      all   all    persistence log1p 1710   0.474605    0.793393 0.429825 0.769591      1.000000
+      all   all seasonal_naive count 1710 931.474638 1221.490058 0.336842 0.547953      2.106996
+      all   all seasonal_naive log1p 1710   1.221372    2.025607 0.336842 0.547953      2.573451
+  horizon     1             b3 count  441 219.496542  379.041834 0.541950 0.768707      0.943488
+  horizon     2             b3 count  432 306.646462  570.847065 0.509259 0.750000      0.834951
+  horizon     3             b3 count  423 419.191101  789.209128 0.444444 0.747045      0.815531
+  horizon     4             b3 count  414 550.231493 1027.427710 0.415459 0.736715      0.821512
+  horizon     1             b3 log1p  441   0.314644    0.517036 0.541950 0.768707      0.999980
+  horizon     2             b3 log1p  432   0.379973    0.630144 0.509259 0.750000      0.913398
+  horizon     3             b3 log1p  423   0.463656    0.774929 0.444444 0.747045      0.870974
+  horizon     4             b3 log1p  414   0.547117    0.897519 0.415459 0.736715      0.845422
+  horizon     1       ensemble count  441 227.344595  372.607491 0.480726 0.732426      0.977222
+  horizon     2       ensemble count  432 291.351956  475.823280 0.474537 0.703704      0.793306
+  horizon     3       ensemble count  423 344.916011  563.217311 0.442080 0.713948      0.671030
+  horizon     4       ensemble count  414 413.948210  648.391178 0.487923 0.705314      0.618037
+  horizon     1       ensemble log1p  441   0.307996    0.491518 0.480726 0.732426      0.978851
+  horizon     2       ensemble log1p  432   0.372743    0.604657 0.474537 0.703704      0.896019
+  horizon     3       ensemble log1p  423   0.425957    0.720870 0.442080 0.713948      0.800157
+  horizon     4       ensemble log1p  414   0.494393    0.829960 0.487923 0.705314      0.763952
+  horizon     1        model_a count  441 433.162429  612.035666 0.303855 0.632653      1.861914
+  horizon     2        model_a count  432 581.254031  776.618757 0.319444 0.597222      1.582665
+  horizon     3        model_a count  423 724.099898  971.334459 0.307329 0.581560      1.408728
+  horizon     4        model_a count  414 903.285971 1127.733640 0.314010 0.618357      1.348633
+  horizon     1        model_a log1p  441   0.355697    0.524670 0.303855 0.632653      1.130452
+  horizon     2        model_a log1p  432   0.454706    0.684799 0.319444 0.597222      1.093045
+  horizon     3        model_a log1p  423   0.525910    0.845926 0.307329 0.581560      0.987919
+  horizon     4        model_a log1p  414   0.647811    1.041600 0.314010 0.618357      1.001019
+  horizon     1    persistence count  441 232.643688  339.469388 0.408163 0.782313      1.000000
+  horizon     2    persistence count  432 367.262792  522.865741 0.430556 0.773148      1.000000
+  horizon     3    persistence count  423 514.009894  695.061466 0.458629 0.763593      1.000000
+  horizon     4    persistence count  414 669.779033  844.981884 0.417874 0.758454      1.000000
+  horizon     1    persistence log1p  441   0.314651    0.525254 0.410431 0.782313      1.000000
+  horizon     2    persistence log1p  432   0.415999    0.693241 0.432870 0.773148      1.000000
+  horizon     3    persistence log1p  423   0.532342    0.886532 0.458629 0.763593      1.000000
+  horizon     4    persistence log1p  414   0.647152    1.088363 0.417874 0.758454      1.000000
+  horizon     1 seasonal_naive count  441 898.713124 1184.471655 0.333333 0.553288      3.863045
+  horizon     2 seasonal_naive count  432 920.244337 1208.870370 0.335648 0.548611      2.505684
+  horizon     3 seasonal_naive count  423 942.770542 1234.354610 0.340426 0.550827      1.834149
+  horizon     4 seasonal_naive count  414 966.549881 1260.946860 0.338164 0.538647      1.443088
+  horizon     1 seasonal_naive log1p  441   1.159313    1.998153 0.333333 0.553288      3.684445
+  horizon     2 seasonal_naive log1p  432   1.199865    2.015334 0.335648 0.548611      2.884297
+  horizon     3 seasonal_naive log1p  423   1.243477    2.033807 0.340426 0.550827      2.335863
+  horizon     4 seasonal_naive log1p  414   1.287334    2.057192 0.338164 0.538647      1.989229
+{
+ "label": "VALIDATION",
+ "comparator": "persistence",
+ "forecasts_made": {
+  "seasonal_naive": 1800,
+  "model_a": 1872,
+  "b3": 1872,
+  "ensemble": 1872,
+  "persistence": 1872
+ },
+ "forecasts_scored_common": 1710
+}
