@@ -6,6 +6,12 @@ whole country and its divisions, built only from public data and evaluated under
 
 **Dashboard:** https://rashed-ahammod.github.io/denguecast-bd/
 
+**Get alerts (free):** pick your area on the dashboard's [Alerts](https://rashed-ahammod.github.io/denguecast-bd/#alerts) section
+for this week's level, a "prepare for up to" planning number and a ready-to-send message in **Bangla or English**
+(WhatsApp, email, copy). For an email on every new forecast: GitHub → **Watch → Custom → Releases** on this repository.
+Or subscribe to the [RSS feed](https://rashed-ahammod.github.io/denguecast-bd/feed.xml).
+Built for city corporations, hospitals, NGOs and the public.
+
 Not a clinical tool. Forecasts target admissions reported by DGHS, not infections.
 HealthSphere AI track, International AI Builders Congress 2026 (CloudCamp Bangladesh).
 

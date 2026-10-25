@@ -158,6 +158,30 @@ pre.code { background: var(--surface-2); border-radius: 12px; padding: 14px; ove
 ul.lim { columns: 2; column-gap: 28px; padding-left: 18px; margin: 0; }
 @media (max-width: 760px) { ul.lim { columns: 1; } }
 ul.lim li { margin: 0 0 8px; break-inside: avoid; color: var(--ink-2); font-size: 14px; }
+.alert-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: 14px; }
+@media (max-width: 860px) { .alert-grid { grid-template-columns: 1fr; } }
+.lvl { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; border-radius: 999px; padding: 4px 11px; }
+.lvl.very_high { background: color-mix(in srgb, var(--crit) 16%, transparent); color: var(--crit); }
+.lvl.high { background: color-mix(in srgb, #ec835a 22%, transparent); color: var(--ink); }
+.lvl.typical { background: var(--surface-2); color: var(--ink-2); }
+.lvl.low { background: color-mix(in srgb, var(--good) 14%, transparent); color: var(--good-ink); }
+.lvl.na { background: var(--surface-2); color: var(--ink-2); }
+.alert-area { font-size: 22px; font-weight: 700; letter-spacing: -.015em; margin: 10px 0 2px; }
+.alert-lines { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 10px; }
+.alert-lines li { display: grid; grid-template-columns: 26px 1fr; gap: 8px; align-items: start; font-size: 15px; }
+.alert-lines .ai { width: 26px; height: 26px; border-radius: 8px; background: var(--accent-wash); color: var(--s1); display: grid; place-items: center; font-size: 13px; font-weight: 700; }
+.alert-lines b { font-weight: 700; }
+.plan { margin-top: 14px; border-radius: 12px; padding: 12px 14px; background: color-mix(in srgb, var(--crit) 7%, var(--surface)); border: 1px solid color-mix(in srgb, var(--crit) 25%, transparent); }
+.plan .k { font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--crit); }
+.plan .v { font-size: 26px; font-weight: 700; letter-spacing: -.02em; }
+textarea.msg { width: 100%; min-height: 170px; resize: vertical; font: 13.5px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--ink); background: var(--surface-2); border: 1px solid var(--ring); border-radius: 12px; padding: 12px; }
+.btnrow { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.btn { display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--ring); background: var(--surface); color: var(--ink); font: inherit; font-size: 14px; font-weight: 600; padding: 8px 13px; border-radius: 10px; cursor: pointer; text-decoration: none; }
+.btn:hover { text-decoration: none; background: var(--surface-2); }
+.btn.primary { background: var(--s1); border-color: var(--s1); color: #fff; }
+.btn.primary:hover { filter: brightness(1.06); background: var(--s1); }
+.cta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+ol.stepsmini { margin: 8px 0 0; padding-left: 20px; font-size: 14px; } ol.stepsmini li { margin: 3px 0; }
 footer { padding: 30px 0 50px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--ring); }
 .tag { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 .valbadge { font-size: 11px; font-weight: 700; letter-spacing: .06em; padding: 2px 8px; border-radius: 6px; background: color-mix(in srgb, var(--warn) 25%, transparent); color: var(--ink); }
@@ -171,7 +195,7 @@ footer { padding: 30px 0 50px; color: var(--muted); font-size: 13px; border-top:
     DengueCast BD
   </a>
   <nav class="links" aria-label="Sections">
-    <a href="#forecast">This week</a><a href="#record">Track record</a><a href="#use">Who it helps</a>
+    <a href="#alerts">Alerts</a><a href="#forecast">This week</a><a href="#record">Track record</a><a href="#use">Who it helps</a>
     <a href="#how">How it works</a><a href="#build">Build on it</a><a href="#limits">Limits</a>
   </nav>
   <button class="icon-btn" id="theme" aria-label="Toggle light or dark theme" title="Toggle theme">
@@ -185,9 +209,45 @@ footer { padding: 30px 0 50px; color: var(--muted); font-size: 13px; border-top:
     <h1 id="hero-title">Dengue hospital admissions, forecast 1-4 weeks ahead, with honest ranges.</h1>
     <p class="lede">DengueCast BD turns public DGHS reports into weekly forecasts for the country and its divisions. Every forecast comes with a range, and every claim is backed by a locked, public test on a season the models never saw.</p>
     <div class="meta" id="hero-meta"></div>
+    <div class="cta">
+      <a class="btn primary" href="#alerts">Check your area &amp; get alerts</a>
+      <a class="btn" href="#record">See the track record</a>
+    </div>
   </div>
 
   <div class="wrap"><div class="grid g4" id="tiles"></div></div>
+
+  <!-- ALERTS -->
+  <section class="block" id="alerts"><div class="wrap">
+    <div class="controls" style="margin-bottom:6px">
+      <h2 style="margin:0;font-size:24px;letter-spacing:-.015em" id="al-h2">Alerts for your area</h2>
+      <span class="spacer"></span>
+      <div class="seg" role="group" aria-label="Language" id="al-lang"></div>
+    </div>
+    <p class="sub" id="al-sub"></p>
+    <div class="alert-grid">
+      <div class="card">
+        <div class="controls"><label class="small" for="al-unit" id="al-unit-l"></label><select id="al-unit"></select></div>
+        <div id="al-card"></div>
+      </div>
+      <div class="card">
+        <span class="tag" id="al-share-t"></span>
+        <p class="small" id="al-share-s" style="margin:4px 0 10px"></p>
+        <textarea class="msg" id="al-msg" readonly aria-label="Alert message to share"></textarea>
+        <div class="btnrow">
+          <a class="btn primary" id="al-wa" target="_blank" rel="noopener"></a>
+          <button class="btn" id="al-copy"></button>
+          <a class="btn" id="al-mail"></a>
+        </div>
+      </div>
+    </div>
+    <div class="grid g3" style="margin-top:14px">
+      <div class="card"><span class="tag" id="sub1-t"></span><h3 style="margin:6px 0 4px;font-size:16px" id="sub1-h"></h3><ol class="stepsmini" id="sub1-ol"></ol><div class="btnrow"><a class="btn" id="sub1-a" target="_blank" rel="noopener"></a></div></div>
+      <div class="card"><span class="tag" id="sub2-t"></span><h3 style="margin:6px 0 4px;font-size:16px" id="sub2-h"></h3><p class="small" style="font-size:14px;margin:0" id="sub2-p"></p><div class="btnrow"><a class="btn" id="sub2-a" href="feed.xml"></a></div></div>
+      <div class="card"><span class="tag" id="sub3-t"></span><h3 style="margin:6px 0 4px;font-size:16px" id="sub3-h"></h3><p class="small" style="font-size:14px;margin:0" id="sub3-p"></p></div>
+    </div>
+    <p class="small" id="al-levels" style="margin-top:12px"></p>
+  </div></section>
 
   <!-- THIS WEEK -->
   <section class="block" id="forecast"><div class="wrap">
@@ -695,7 +755,118 @@ def my_model(history, origin):
     }
   }
 
-  function renderAll() { renderHero(); renderForecast(); if (D.test || D.validation) renderRecord(); renderExplain(); renderDownloads(); }
+  /* ---------- alerts (English / Bangla) ---------- */
+  const BN_DIG = "০১২৩৪৫৬৭৮৯";
+  const BN_MON = ["জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন", "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর"];
+  const BN_NAMES = { NATIONAL: "বাংলাদেশ (সারা দেশ)", DHAKA_DIV_TOTAL: "ঢাকা বিভাগ (সিটি কর্পোরেশনসহ)", DHAKA_DIV: "ঢাকা বিভাগ (সিটি কর্পোরেশন ছাড়া)",
+    DNCC: "ঢাকা উত্তর সিটি কর্পোরেশন", DSCC: "ঢাকা দক্ষিণ সিটি কর্পোরেশন", CHATTOGRAM_DIV: "চট্টগ্রাম বিভাগ", BARISHAL_DIV: "বরিশাল বিভাগ",
+    KHULNA_DIV: "খুলনা বিভাগ", RAJSHAHI_DIV: "রাজশাহী বিভাগ", RANGPUR_DIV: "রংপুর বিভাগ", MYMENSINGH_DIV: "ময়মনসিংহ বিভাগ", SYLHET_DIV: "সিলেট বিভাগ" };
+  const LEVEL = { en: { very_high: "Very high", high: "High", typical: "Typical", low: "Low" }, bn: { very_high: "খুব বেশি", high: "বেশি", typical: "স্বাভাবিক", low: "কম" } };
+  const LEVEL_ICON = { very_high: "▲▲", high: "▲", typical: "■", low: "▼" };
+  const T = {
+    en: {
+      h2: "Alerts for your area",
+      sub: "Pick your area to see this week's level and what to prepare for, then share it with your team or subscribe so the next forecast reaches you automatically. Built for city corporations, hospitals, NGOs and anyone who needs early notice.",
+      unit: "Area", share_t: "Share with your team", share_s: "A ready-to-send message. Forward it on WhatsApp, email it, or paste it into your office group.",
+      wa: "Share on WhatsApp", copy: "Copy message", copied: "Copied ✓", mail: "Email", not_week: " — not this week",
+      level: (l, p) => "Level this week: " + l + " — higher than " + p + "% of weeks in 2022–2023",
+      last: (d, x) => "Admissions last week (to " + d + "): " + x,
+      next: (d, m) => "Next week (to " + d + "): about " + m, next_sub: (a, b) => "likely " + a + "–" + b,
+      plan_k: "Prepare for up to", plan_v: (u) => u + " admissions next week", plan_4: (d, u) => "and up to " + u + " in the week to " + d + " (top of the 90% range)",
+      na_badge: "Not available this week",
+      na: (a, d) => "No forecast for " + a + " this week. The DGHS figures for this area were incomplete for the week ending " + d + ", and we never fill in missing numbers. It will be forecast as soon as a full week of daily releases is available.",
+      na_more: "Meanwhile, use the national and divisional alerts, and check again next Saturday.",
+      disclaimer: "Planning aid built from public DGHS data; not an official DGHS warning.",
+      msg: (a, A, url) => "Dengue forecast – " + a + "\nLast week (to " + A.d0 + "): " + A.x + " hospital admissions (" + A.lvl + ", higher than " + A.p + "% of weeks in 2022–23).\nNext week (to " + A.d1 + "): about " + A.m + " (likely " + A.a + "–" + A.b + ").\nPrepare for up to " + A.u + " next week; up to " + A.u4 + " in the week to " + A.d4 + ".\nSource: DengueCast BD (public DGHS data; not an official warning) " + url,
+      msg_na: (a, url) => "Dengue forecast – " + a + "\nNo forecast this week: DGHS figures for this area were incomplete. See the national and divisional forecasts: " + url,
+      s1t: "Email alerts", s1h: "Get an email for every new forecast", s1: ["Sign in to GitHub (free account).", "Open the DengueCast BD repository.", "Click Watch → Custom → tick “Releases” → Apply."], s1a: "Open repository",
+      s2t: "Feed", s2h: "RSS feed", s2p: "Add it to any feed reader, or to a Slack or Microsoft Teams channel, so new forecasts appear automatically.", s2a: "Open RSS feed",
+      s3t: "Schedule", s3h: "When new forecasts arrive", s3p: "Every Saturday night (22:30 BDT), once that week's seven DGHS daily releases are entered. Tip for organisations: make one person responsible for checking on Sunday morning and forwarding the message.",
+      levels: "How levels are defined: this week's admissions compared with the same area's 104 weeks in 2022–2023. Very high = above 90% of those weeks; High = 75–90%; Typical = 25–75%; Low = below 25%. The level describes the current week; the numbers below it are the forecast.",
+    },
+    bn: {
+      h2: "আপনার এলাকার সতর্কবার্তা",
+      sub: "আপনার এলাকা বেছে নিন: এই সপ্তাহের মাত্রা এবং কতজনের জন্য প্রস্তুতি দরকার তা দেখুন, দলের সাথে শেয়ার করুন, অথবা সাবস্ক্রাইব করুন যাতে পরের পূর্বাভাস নিজে থেকেই আপনার কাছে পৌঁছায়। সিটি কর্পোরেশন, হাসপাতাল, এনজিও এবং যাদের আগাম তথ্য দরকার তাদের জন্য।",
+      unit: "এলাকা", share_t: "দলের সাথে শেয়ার করুন", share_s: "পাঠানোর জন্য তৈরি বার্তা। হোয়াটসঅ্যাপে পাঠান, ইমেইল করুন, বা অফিসের গ্রুপে পেস্ট করুন।",
+      wa: "হোয়াটসঅ্যাপে শেয়ার", copy: "বার্তা কপি করুন", copied: "কপি হয়েছে ✓", mail: "ইমেইল", not_week: " — এই সপ্তাহে নেই",
+      level: (l, p) => "এই সপ্তাহের মাত্রা: " + l + " — ২০২২–২০২৩ সালের " + p + "% সপ্তাহের চেয়ে বেশি",
+      last: (d, x) => "গত সপ্তাহে হাসপাতালে ভর্তি (" + d + " পর্যন্ত): " + x + " জন",
+      next: (d, m) => "আগামী সপ্তাহে (" + d + " পর্যন্ত): আনুমানিক " + m + " জন", next_sub: (a, b) => "সম্ভাব্য " + a + "–" + b + " জন",
+      plan_k: "প্রস্তুতি রাখুন সর্বোচ্চ", plan_v: (u) => u + " জনের জন্য (আগামী সপ্তাহ)", plan_4: (d, u) => d + " পর্যন্ত সপ্তাহে সর্বোচ্চ " + u + " জন (৯০% সীমার ঊর্ধ্বসীমা)",
+      na_badge: "এই সপ্তাহে পাওয়া যায়নি",
+      na: (a, d) => "এই সপ্তাহে " + a + "-এর পূর্বাভাস নেই। " + d + " শেষ হওয়া সপ্তাহে এই এলাকার DGHS তথ্য অসম্পূর্ণ ছিল, আর আমরা কখনো অনুমান করে সংখ্যা বসাই না। পূর্ণ সপ্তাহের তথ্য পেলেই পূর্বাভাস দেওয়া হবে।",
+      na_more: "ততক্ষণ জাতীয় ও বিভাগীয় সতর্কবার্তা দেখুন, এবং আগামী শনিবার আবার দেখুন।",
+      disclaimer: "সরকারি DGHS তথ্য থেকে তৈরি পরিকল্পনা-সহায়ক পূর্বাভাস; এটি DGHS-এর আনুষ্ঠানিক সতর্কবার্তা নয়।",
+      msg: (a, A, url) => "ডেঙ্গু পূর্বাভাস – " + a + "\nগত সপ্তাহে (" + A.d0 + " পর্যন্ত) হাসপাতালে ভর্তি: " + A.x + " জন (" + A.lvl + "; ২০২২–২৩ সালের " + A.p + "% সপ্তাহের চেয়ে বেশি)।\nআগামী সপ্তাহে (" + A.d1 + " পর্যন্ত): আনুমানিক " + A.m + " জন (সম্ভাব্য " + A.a + "–" + A.b + ")।\nপ্রস্তুতি রাখুন: আগামী সপ্তাহে সর্বোচ্চ " + A.u + " জন; " + A.d4 + " পর্যন্ত সপ্তাহে সর্বোচ্চ " + A.u4 + " জন।\nসূত্র: DengueCast BD (DGHS-এর প্রকাশিত তথ্য; আনুষ্ঠানিক সতর্কবার্তা নয়) " + url,
+      msg_na: (a, url) => "ডেঙ্গু পূর্বাভাস – " + a + "\nএই সপ্তাহে পূর্বাভাস নেই: এই এলাকার DGHS তথ্য অসম্পূর্ণ ছিল। জাতীয় ও বিভাগীয় পূর্বাভাস দেখুন: " + url,
+      s1t: "ইমেইল সতর্কবার্তা", s1h: "প্রতিটি নতুন পূর্বাভাস ইমেইলে পান", s1: ["GitHub-এ সাইন ইন করুন (ফ্রি অ্যাকাউন্ট)।", "DengueCast BD রিপোজিটরি খুলুন।", "Watch → Custom → “Releases” টিক দিন → Apply।"], s1a: "রিপোজিটরি খুলুন",
+      s2t: "ফিড", s2h: "RSS ফিড", s2p: "যেকোনো ফিড রিডার, অথবা Slack বা Microsoft Teams চ্যানেলে যোগ করুন, যাতে নতুন পূর্বাভাস নিজে থেকেই আসে।", s2a: "RSS ফিড খুলুন",
+      s3t: "সময়সূচি", s3h: "নতুন পূর্বাভাস কখন আসে", s3p: "প্রতি শনিবার রাত সাড়ে ১০টায় (বাংলাদেশ সময়), সেই সপ্তাহের সাতটি DGHS দৈনিক বিজ্ঞপ্তি যুক্ত হওয়ার পর। প্রতিষ্ঠানের জন্য পরামর্শ: রবিবার সকালে দেখে দলকে বার্তা পাঠানোর দায়িত্ব একজনকে দিন।",
+      levels: "মাত্রা যেভাবে নির্ধারিত: এই সপ্তাহের ভর্তির সংখ্যাকে একই এলাকার ২০২২–২০২৩ সালের ১০৪টি সপ্তাহের সাথে তুলনা। খুব বেশি = সেই সপ্তাহগুলোর ৯০%-এর বেশি; বেশি = ৭৫–৯০%; স্বাভাবিক = ২৫–৭৫%; কম = ২৫%-এর কম। মাত্রা বর্তমান সপ্তাহের বর্ণনা; নিচের সংখ্যাগুলো পূর্বাভাস।",
+    },
+  };
+  let LANG = "en";
+  try { const l = localStorage.getItem("dc-lang"); if (l === "bn" || l === "en") LANG = l; } catch (e) {}
+  const bnd = (s) => LANG === "bn" ? String(s).replace(/\d/g, (d) => BN_DIG[d]) : String(s);
+  const num = (v) => bnd(fmt(v));
+  const dat = (s) => { if (LANG !== "bn") return dlong(s); const d = new Date(s + "T00:00:00Z"); return bnd(d.getUTCDate()) + " " + BN_MON[d.getUTCMonth()]; };
+  const aname = (u) => LANG === "bn" ? BN_NAMES[u] || NAMES[u] : NAMES[u] || u;
+  function renderAlerts() {
+    const A = D.alerts, L = T[LANG]; if (!A) return;
+    const set = (id, t) => { $(id).textContent = t; };
+    set("al-h2", L.h2); set("al-sub", L.sub); set("al-unit-l", L.unit); set("al-share-t", L.share_t); set("al-share-s", L.share_s);
+    set("sub1-t", L.s1t); set("sub1-h", L.s1h); set("sub1-a", L.s1a); set("sub2-t", L.s2t); set("sub2-h", L.s2h); set("sub2-p", L.s2p); set("sub2-a", L.s2a);
+    set("sub3-t", L.s3t); set("sub3-h", L.s3h); set("sub3-p", L.s3p); set("al-levels", L.levels);
+    $("sub1-a").href = D.repo;
+    const ol = $("sub1-ol"); ol.textContent = ""; L.s1.forEach((t) => ol.appendChild(h("li", null, t)));
+    const seg = $("al-lang"); seg.textContent = "";
+    for (const [k, lab] of [["en", "English"], ["bn", "বাংলা"]]) {
+      const b = h("button", { "aria-pressed": LANG === k, lang: k }, lab);
+      b.addEventListener("click", () => { LANG = k; try { localStorage.setItem("dc-lang", k); } catch (e) {} renderAlerts(); });
+      seg.appendChild(b);
+    }
+    $("alerts").setAttribute("lang", LANG);
+    const sel = $("al-unit"); const keep = sel.value || "NATIONAL"; sel.textContent = "";
+    for (const u of Object.keys(A)) sel.appendChild(h("option", { value: u }, aname(u) + (A[u].available ? "" : L.not_week)));
+    sel.value = keep;
+    if (!sel.dataset.bound) { sel.addEventListener("change", renderAlerts); sel.dataset.bound = 1; }
+    const u = sel.value, a = A[u], card = $("al-card"); card.textContent = "";
+    const url = D.site + "#alerts";
+    let msg;
+    if (a.available) {
+      const lvl = LEVEL[LANG][a.level], p = bnd(Math.round(a.pct * 100));
+      card.appendChild(h("span", { class: "lvl " + a.level }, LEVEL_ICON[a.level] + " " + lvl));
+      card.appendChild(h("div", { class: "alert-area" }, aname(u)));
+      card.appendChild(h("div", { class: "small" }, L.level(lvl, p)));
+      const ul = h("ul", { class: "alert-lines" });
+      const li = (icon, main, sub) => { const x = h("li"); x.appendChild(h("span", { class: "ai", "aria-hidden": "true" }, icon)); const d = h("div"); d.appendChild(h("b", null, main)); if (sub) d.appendChild(h("div", { class: "small" }, sub)); x.appendChild(d); ul.appendChild(x); };
+      li("◷", L.last(dat(a.last_week), num(a.last)));
+      li("→", L.next(dat(a.week1), num(a.mid1)), L.next_sub(num(a.lo1), num(a.hi1)));
+      card.appendChild(ul);
+      const plan = h("div", { class: "plan" });
+      plan.appendChild(h("div", { class: "k" }, L.plan_k)); plan.appendChild(h("div", { class: "v" }, L.plan_v(num(a.up1))));
+      plan.appendChild(h("div", { class: "small" }, L.plan_4(dat(a.week4), num(a.up4)))); card.appendChild(plan);
+      msg = L.msg(aname(u), { d0: dat(a.last_week), x: num(a.last), lvl, p, d1: dat(a.week1), m: num(a.mid1), a: num(a.lo1), b: num(a.hi1), u: num(a.up1), u4: num(a.up4), d4: dat(a.week4) }, url);
+    } else {
+      card.appendChild(h("span", { class: "lvl na" }, "○ " + L.na_badge));
+      card.appendChild(h("div", { class: "alert-area" }, aname(u)));
+      card.appendChild(h("p", { style: "margin:10px 0 6px" }, L.na(aname(u), dat(D.live ? D.live.meta.origin_week_end : ""))));
+      card.appendChild(h("p", { class: "small", style: "margin:0" }, L.na_more));
+      msg = L.msg_na(aname(u), url);
+    }
+    card.appendChild(h("p", { class: "small", style: "margin:12px 0 0" }, L.disclaimer));
+    $("al-msg").value = msg;
+    $("al-wa").textContent = L.wa; $("al-wa").href = "https://wa.me/?text=" + encodeURIComponent(msg);
+    $("al-mail").textContent = L.mail; $("al-mail").href = "mailto:?subject=" + encodeURIComponent(msg.split("\n")[0]) + "&body=" + encodeURIComponent(msg);
+    const cp = $("al-copy"); cp.textContent = L.copy;
+    cp.onclick = () => {
+      const done = () => { cp.textContent = L.copied; setTimeout(() => (cp.textContent = L.copy), 1600); };
+      const fallback = () => { $("al-msg").select(); document.execCommand("copy"); done(); };
+      if (navigator.clipboard) navigator.clipboard.writeText(msg).then(done, fallback); else fallback();
+    };
+  }
+
+  function renderAll() { renderHero(); renderAlerts(); renderForecast(); if (D.test || D.validation) renderRecord(); renderExplain(); renderDownloads(); }
   tableToggle($("fc-tablebtn"), $("fc-table")); tableToggle($("tr-tablebtn"), $("tr-table")); tableToggle($("models-tablebtn"), $("models-table"));
   renderAll();
   let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(renderAll, 150); });

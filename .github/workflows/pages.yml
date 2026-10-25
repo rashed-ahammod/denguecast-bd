@@ -3,6 +3,9 @@ on:
   push:
     branches: [main]
     paths: ["site/**"]
+  workflow_run:   # bot commits from the forecast workflow do not trigger push events
+    workflows: [forecast]
+    types: [completed]
   workflow_dispatch:
 permissions:
   contents: read
@@ -19,6 +22,8 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

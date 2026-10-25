@@ -10,7 +10,9 @@ from __future__ import annotations
 
 import json
 import sys
+from email.utils import format_datetime
 from pathlib import Path
+from xml.sax.saxutils import escape
 
 import pandas as pd
 
@@ -18,6 +20,7 @@ ROOT = Path(__file__).resolve().parents[1]
 FORECASTS, RESULTS, SITE = ROOT / "forecasts", ROOT / "results", ROOT / "site"
 TEMPLATE = Path(__file__).with_name("site_template.html")
 REPO = "https://github.com/rashed-ahammod/denguecast-bd"
+SITE_URL = "https://rashed-ahammod.github.io/denguecast-bd/"
 sys.path.insert(0, str(Path(__file__).parent))
 from write_results import h1_verdict, h2_verdict  # noqa: E402
 
@@ -136,6 +139,56 @@ def _uorder_rows(rows):
     return sorted(rows, key=lambda r: UNIT_ORDER.index(r["unit"]) if r["unit"] in UNIT_ORDER else 99)
 
 
+# Alert levels: where this week's value sits among the area's own 2022-2023 weeks.
+# Descriptive only (not a forecast, not an official warning); defined on the page.
+LEVELS = [(0.90, "very_high"), (0.75, "high"), (0.25, "typical"), (0.0, "low")]
+ALERT_UNITS = ["NATIONAL", "DHAKA_DIV_TOTAL", "DNCC", "DSCC", "DHAKA_DIV", "CHATTOGRAM_DIV", "BARISHAL_DIV",
+               "KHULNA_DIV", "RAJSHAHI_DIV", "RANGPUR_DIV", "MYMENSINGH_DIV", "SYLHET_DIV"]
+
+
+def alerts(lv: dict | None) -> dict:
+    p = RESULTS / "data_report" / "weekly_2022_2023.csv"
+    ref = pd.read_csv(p) if p.exists() else pd.DataFrame(columns=["unit", "value"])
+    out = {}
+    for u in ALERT_UNITS:
+        a = {"available": False}
+        if lv and u in lv["units"]:
+            U = lv["units"][u]
+            last_week, last = U["history"][-1]
+            f = {r["h"]: r for r in U["forecast"]}
+            hist = ref.loc[(ref["unit"] == u) & ref["value"].notna(), "value"]
+            pct = float((hist < last).mean()) if len(hist) else None
+            level = next(name for cut, name in LEVELS if pct is None or pct >= cut) if pct is not None else None
+            a = {"available": True, "last_week": last_week, "last": last, "pct": _r(pct, 3), "level": level, "ref_weeks": int(len(hist)),
+                 "week1": f[1]["week"], "mid1": f[1]["q500"], "lo1": f[1]["q250"], "hi1": f[1]["q750"], "up1": f[1]["q950"],
+                 "week4": f[4]["week"], "up4": f[4]["q950"]}
+        elif lv:
+            a["reason"] = "skipped" if u in lv["meta"].get("units_skipped", []) or u in ("DNCC", "DSCC") else "not_forecast"
+        out[u] = a
+    return out
+
+
+def feed() -> str:
+    items = []
+    for meta_path in sorted(FORECASTS.glob("*/*.json"), reverse=True):
+        meta = json.loads(meta_path.read_text(encoding="utf-8"))
+        fc = pd.read_csv(meta_path.with_suffix(".csv"))
+        nat = fc[(fc["unit"] == "NATIONAL") & (fc["horizon"] == 1)].set_index("quantile")["value"]
+        week1 = fc.loc[(fc["unit"] == "NATIONAL") & (fc["horizon"] == 1), "target_week_end"].iloc[0] if len(nat) else meta["origin_week_end"]
+        title = f"Bangladesh dengue forecast, week ending {week1}"
+        desc = (f"Next week (to {week1}) Bangladesh can expect about {nat[0.5]:,.0f} dengue hospital admissions "
+                f"(likely {nat[0.25]:,.0f}-{nat[0.75]:,.0f}; very likely {nat[0.05]:,.0f}-{nat[0.95]:,.0f}). "
+                f"Areas forecast: {', '.join(UNIT_NAMES.get(u, u) for u in meta['units_forecast'])}. "
+                + ("Published late. " if meta.get("late") else "") + f"Details: {SITE_URL}") if len(nat) else f"Forecast published. Details: {SITE_URL}"
+        when = pd.Timestamp(meta["created_at_bdt"]).to_pydatetime()
+        guid = f"{REPO}/blob/main/{meta_path.relative_to(ROOT).as_posix()}"
+        items.append(f"<item><title>{escape(title)}</title><link>{SITE_URL}#alerts</link><guid isPermaLink=\"false\">{escape(guid)}</guid>"
+                     f"<pubDate>{format_datetime(when)}</pubDate><description>{escape(desc)}</description></item>")
+    return ('<?xml version="1.0" encoding="UTF-8"?>\n<rss version="2.0"><channel><title>DengueCast BD forecasts</title>'
+            f"<link>{SITE_URL}</link><description>Weekly dengue hospital admission forecasts for Bangladesh, 1-4 weeks ahead. "
+            "Planning aid, not an official DGHS warning.</description><language>en</language>" + "".join(items) + "</channel></rss>\n")
+
+
 def quality() -> dict | None:
     p = RESULTS / "data_report" / "weekly_2022_2023.csv"
     if not p.exists():
@@ -148,12 +201,14 @@ def quality() -> dict | None:
 
 def main() -> None:
     SITE.mkdir(parents=True, exist_ok=True)
-    data = {"repo": REPO, "unit_names": UNIT_NAMES, "live": live(), "test": season(2024), "validation": season(2023),
-            "quality": quality()}
+    lv = live()
+    data = {"repo": REPO, "site": SITE_URL, "unit_names": UNIT_NAMES, "live": lv, "alerts": alerts(lv), "test": season(2024),
+            "validation": season(2023), "quality": quality()}
     payload = json.dumps(data, separators=(",", ":"), default=str).replace("</", "<\\/")
     page = TEMPLATE.read_text(encoding="utf-8").replace("/*__DATA__*/null", payload)
     (SITE / "index.html").write_text(page, encoding="utf-8")
-    print(f"Wrote {SITE / 'index.html'} ({len(page):,} bytes)")
+    (SITE / "feed.xml").write_text(feed(), encoding="utf-8")
+    print(f"Wrote {SITE / 'index.html'} ({len(page):,} bytes) and feed.xml")
 
 
 if __name__ == "__main__":

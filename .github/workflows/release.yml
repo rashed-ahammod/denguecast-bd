@@ -1,0 +1,40 @@
+name: release
+# Publishes every forecast as a GitHub Release. Anyone who watches the
+# repository's releases (Watch -> Custom -> Releases) gets an email.
+on:
+  push:
+    branches: [main]
+    paths: ["forecasts/**", ".github/workflows/release.yml"]
+  workflow_run:
+    workflows: [forecast]
+    types: [completed]
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: release
+  cancel-in-progress: false
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pandas
+      - name: Create a release for each forecast that has none
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for meta in forecasts/*/*.json; do
+            [ -e "$meta" ] || continue
+            origin=$(basename "$(dirname "$meta")"); model=$(basename "$meta" .json)
+            tag="forecast-${origin}-${model}"
+            if gh release view "$tag" >/dev/null 2>&1; then echo "exists: $tag"; continue; fi
+            python scripts/release_notes.py "$meta" > notes.md
+            week1=$(python -c "import pandas as p,sys; print(p.read_csv(sys.argv[1])['target_week_end'].min())" "${meta%.json}.csv")
+            gh release create "$tag" --target main --title "Dengue forecast: week ending ${week1} (${model})" --notes-file notes.md
+          done
