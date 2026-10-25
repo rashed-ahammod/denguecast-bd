@@ -1,0 +1,35 @@
+{
+  "model": "persistence",
+  "as_of_utc": "2026-10-25T08:44:58+00:00",
+  "origin_week_end": "2026-10-24",
+  "units_forecast": [
+    "BARISHAL_DIV",
+    "CHATTOGRAM_DIV",
+    "KHULNA_DIV",
+    "MYMENSINGH_DIV",
+    "NATIONAL",
+    "RANGPUR_DIV",
+    "SYLHET_DIV"
+  ],
+  "units_skipped": [
+    "DHAKA_CITY",
+    "DHAKA_DIV",
+    "DHAKA_DIV_TOTAL",
+    "RAJSHAHI_DIV"
+  ],
+  "interval_basis": {
+    "BARISHAL_DIV": "unit",
+    "CHATTOGRAM_DIV": "unit",
+    "KHULNA_DIV": "unit",
+    "MYMENSINGH_DIV": "unit",
+    "NATIONAL": "unit",
+    "RANGPUR_DIV": "unit",
+    "SYLHET_DIV": "unit"
+  },
+  "weeks_of_history": 251,
+  "quality_log_entries": 181,
+  "created_at_bdt": "2026-10-25T14:44:58+06:00",
+  "commit_deadline_bdt": "2026-10-25T12:00:00+06:00",
+  "late": true,
+  "code_commit": "1f4201ccd79df1e683bf6699651a87c62ff749fc"
+}
