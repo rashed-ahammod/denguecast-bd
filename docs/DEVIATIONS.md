@@ -1,9 +1,11 @@
 # Deviation log
 
-Every change to the pre-registered plan made after locking is recorded here
-before it is used, and listed in the final report and pitch.
-Changes proposed before locking are in `ASSUMPTIONS_AND_BLOCKERS.md` (P1-P3).
+Every change to the plan is recorded here before it is used, and listed in the
+final report and pitch. Pre-lock amendments D1-D11 are in
+`ASSUMPTIONS_AND_BLOCKERS.md` and consolidated in `preregistration.md`.
 
 | Date | What changed | Why | First forecast or result affected |
 | --- | --- | --- | --- |
-| (none yet) | | | |
+| 2026-10-25 | **No OSF registration.** The plan is locked by the git tag `prereg-v1` on the public repository, pushed before any 2024 data was ingested. The planned lock date (Sat 24 Oct, D7) slipped to Sun 25 Oct. | Team decision under time pressure (work started 25 Oct). | 2024 test results |
+| 2026-10-25 | **First live forecast missed its deadline.** No forecast for origin 2026-10-24 existed by Sun 25 Oct 12:00 BDT. If published, it carries its real creation time and `late: true` (D11); it is never back-dated. | Work started after the deadline; W42 releases had to be transcribed. | `forecasts/2026-10-24/` |
+| 2026-10-25 | **Backtest units adapted to the data (D10).** The Mendeley data has no DNCC/DSCC split and no national series; Dhaka is evaluated as DHAKA_DIV_TOTAL and NATIONAL is the sum of the 8 divisions. Decided before any 2024 data was seen. | Data structure found in Step 0. | 2023 validation and 2024 test |
