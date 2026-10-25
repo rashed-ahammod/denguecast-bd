@@ -8,6 +8,11 @@ Rules:
 - For each report_date, the subnational units must sum exactly to stated_total;
   if not, that date is rejected and reported (nothing is "fixed").
 - A NATIONAL row is added from stated_total.
+- Optional column ``release_complete``: "no" marks a release whose area figures
+  are contradictory or incomplete in every available source (deviation log,
+  2026-10-25). For such a date only the areas listed (those all sources agree
+  on) and the stated total are stored; the listed areas must not exceed the
+  total, and a week containing that date is missing for every unlisted area.
 - Rows already in the archive are skipped (idempotent).
 Usage:  python -m denguecast.ingest_manual
 """
@@ -41,7 +46,11 @@ def build_rows(manual: pd.DataFrame, retrieved_at) -> tuple[pd.DataFrame, list[s
             problems.append(f"{d}: duplicate units; date rejected")
             continue
         s = int(g["admissions"].sum())
-        if s != int(totals[0]):
+        partial = "release_complete" in g.columns and str(g["release_complete"].iloc[0]).strip().lower() == "no"
+        if partial and s > int(totals[0]):
+            problems.append(f"{d}: listed areas sum to {s}, above the stated total {int(totals[0])}; date rejected")
+            continue
+        if not partial and s != int(totals[0]):
             problems.append(f"{d}: units sum to {s} but release states {int(totals[0])}; date rejected")
             continue
         avail = pd.Timestamp(d, tz="UTC") + pd.Timedelta(hours=config.ASSUMED_PUBLICATION_HOUR_UTC)
@@ -53,7 +62,8 @@ def build_rows(manual: pd.DataFrame, retrieved_at) -> tuple[pd.DataFrame, list[s
             out.append({**base, "unit": r.unit, "reference_date": str(d), "value": int(r.admissions),
                         "source_url": r.source_url, "note": f"manual entry by {r.entered_by}"})
         out.append({**base, "unit": "NATIONAL", "reference_date": str(d), "value": int(totals[0]),
-                    "source_url": url, "note": "national = stated_total of the release"})
+                    "source_url": url, "note": "national = stated_total of the release"
+                    + ("; partial release: only areas agreed by all sources stored" if partial else "")})
     return pd.DataFrame(out), problems
 
 

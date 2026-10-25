@@ -28,3 +28,25 @@ def test_missing_source_rejected():
     m = _manual([["2026-01-12", "DNCC", 10, 10, "", "t"]])
     rows, problems = build_rows(m, "2026-01-12T15:00:00+00:00")
     assert rows.empty and problems
+
+
+def test_partial_release_keeps_listed_areas_and_total():
+    m = _manual([["2026-10-20", "BARISHAL_DIV", 191, 1366, "http://src", "t"],
+                 ["2026-10-20", "KHULNA_DIV", 141, 1366, "http://src", "t"]]).assign(release_complete="no")
+    rows, problems = build_rows(m, "2026-10-25T00:00:00+00:00")
+    assert not problems
+    assert set(rows["unit"]) == {"BARISHAL_DIV", "KHULNA_DIV", "NATIONAL"}
+    assert rows.loc[rows["unit"] == "NATIONAL", "value"].iloc[0] == 1366
+
+
+def test_partial_release_cannot_exceed_total():
+    m = _manual([["2026-10-20", "BARISHAL_DIV", 1000, 1366, "http://src", "t"],
+                 ["2026-10-20", "KHULNA_DIV", 400, 1366, "http://src", "t"]]).assign(release_complete="no")
+    rows, problems = build_rows(m, "2026-10-25T00:00:00+00:00")
+    assert rows.empty and "above the stated total" in problems[0]
+
+
+def test_complete_is_default_and_still_exact():
+    m = _manual([["2026-10-20", "BARISHAL_DIV", 191, 1366, "http://src", "t"]]).assign(release_complete="yes")
+    rows, problems = build_rows(m, "2026-10-25T00:00:00+00:00")
+    assert rows.empty and "units sum to 191" in problems[0]
