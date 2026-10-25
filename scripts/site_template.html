@@ -1,0 +1,706 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DengueCast BD</title>
+<meta name="description" content="Weekly dengue hospital admission forecasts for Bangladesh, 1-4 weeks ahead, with honest uncertainty and a public track record.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232a78d6'/%3E%3Cpath d='M6 22 L12 15 L17 18 L26 8' stroke='white' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+:root {
+  color-scheme: light;
+  --page: #f6f6f3; --surface: #fcfcfb; --surface-2: #f0efec; --raised: #ffffff;
+  --ink: #0b0b0b; --ink-2: #52514e; --muted: #75736d;
+  --grid: #e7e6e0; --axis: #c3c2b7; --ring: rgba(11,11,11,0.10);
+  --s1: #2a78d6; --s2: #eb6834; --truth: #0b0b0b;
+  --band90: rgba(42,120,214,0.13); --band50: rgba(42,120,214,0.28);
+  --good: #0ca30c; --good-ink: #006300; --warn: #fab219; --crit: #d03b3b;
+  --accent-wash: rgba(42,120,214,0.08);
+  --shadow: 0 1px 2px rgba(11,11,11,.04), 0 8px 24px rgba(11,11,11,.06);
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --surface-2: #232321; --raised: #1f1f1d;
+    --ink: #f0efec; --ink-2: #c3c2b7; --muted: #9a988f;
+    --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
+    --s1: #3987e5; --s2: #d95926; --truth: #f0efec;
+    --band90: rgba(57,135,229,0.16); --band50: rgba(57,135,229,0.34);
+    --good-ink: #0ca30c; --accent-wash: rgba(57,135,229,0.12);
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d; --surface: #1a1a19; --surface-2: #232321; --raised: #1f1f1d;
+  --ink: #f0efec; --ink-2: #c3c2b7; --muted: #9a988f;
+  --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
+  --s1: #3987e5; --s2: #d95926; --truth: #f0efec;
+  --band90: rgba(57,135,229,0.16); --band50: rgba(57,135,229,0.34);
+  --good-ink: #0ca30c; --accent-wash: rgba(57,135,229,0.12);
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--page); color: var(--ink); font: 15px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
+a { color: var(--s1); text-decoration: none; } a:hover { text-decoration: underline; }
+code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background: var(--surface-2); padding: 1px 5px; border-radius: 5px; }
+.wrap { max-width: 1160px; margin: 0 auto; padding: 0 16px; }
+
+/* nav */
+header.top { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--page) 86%, transparent); backdrop-filter: saturate(1.4) blur(10px); border-bottom: 1px solid var(--ring); }
+header.top .wrap { display: flex; align-items: center; gap: 16px; height: 58px; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 650; letter-spacing: -.01em; color: var(--ink); }
+.brand svg { flex: none; }
+nav.links { display: flex; gap: 2px; margin-left: auto; overflow-x: auto; scrollbar-width: none; }
+nav.links a { color: var(--ink-2); padding: 6px 10px; border-radius: 8px; font-size: 14px; white-space: nowrap; }
+nav.links a:hover { background: var(--surface-2); text-decoration: none; color: var(--ink); }
+.icon-btn { flex: none; border: 1px solid var(--ring); background: var(--surface); color: var(--ink-2); width: 34px; height: 34px; border-radius: 9px; cursor: pointer; display: grid; place-items: center; }
+.icon-btn:hover { color: var(--ink); }
+@media (max-width: 760px) { nav.links { display: none; } .brand { margin-right: auto; } }
+
+/* hero */
+.hero { padding: 44px 0 28px; }
+.eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-2); background: var(--surface); border: 1px solid var(--ring); padding: 4px 10px 4px 8px; border-radius: 999px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--s1); box-shadow: 0 0 0 3px var(--accent-wash); }
+.hero h1 { font-size: clamp(28px, 4.4vw, 44px); line-height: 1.12; letter-spacing: -.025em; margin: 16px 0 10px; font-weight: 700; max-width: 900px; }
+.hero h1 .num { color: var(--s1); }
+.hero p.lede { font-size: 17px; color: var(--ink-2); max-width: 760px; margin: 0; }
+.hero .meta { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--ink-2); background: var(--surface); border: 1px solid var(--ring); border-radius: 999px; padding: 3px 10px; }
+.chip.warn::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--warn); }
+.chip.ok::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--good); }
+
+/* cards and grids */
+section.block { padding: 34px 0; border-top: 1px solid var(--ring); }
+section.block > .wrap > h2 { font-size: 24px; letter-spacing: -.015em; margin: 0 0 6px; }
+.sub { color: var(--ink-2); margin: 0 0 20px; max-width: 780px; }
+.card { background: var(--surface); border: 1px solid var(--ring); border-radius: 16px; box-shadow: var(--shadow); padding: 18px; min-width: 0; }
+.grid { display: grid; gap: 14px; }
+.g4 { grid-template-columns: repeat(4, 1fr); } .g3 { grid-template-columns: repeat(3, 1fr); } .g2 { grid-template-columns: repeat(2, 1fr); }
+@media (max-width: 960px) { .g4 { grid-template-columns: repeat(2, 1fr); } .g3 { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 640px) { .g4, .g3, .g2 { grid-template-columns: 1fr; } }
+.tile .label { font-size: 13px; color: var(--ink-2); }
+.tile .value { font-size: 30px; font-weight: 650; letter-spacing: -.02em; margin: 4px 0 2px; }
+.tile .note { font-size: 12.5px; color: var(--muted); }
+
+/* controls */
+.controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 14px; }
+.seg { display: inline-flex; background: var(--surface-2); border-radius: 10px; padding: 3px; gap: 2px; }
+.seg button { border: 0; background: transparent; color: var(--ink-2); font: inherit; font-size: 13.5px; padding: 5px 11px; border-radius: 8px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--raised); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.08); font-weight: 600; }
+select { font: inherit; font-size: 14px; color: var(--ink); background: var(--surface); border: 1px solid var(--ring); border-radius: 10px; padding: 7px 30px 7px 11px; appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%); background-position: calc(100% - 15px) 52%, calc(100% - 10px) 52%; background-size: 5px 5px; background-repeat: no-repeat; max-width: 100%; }
+.toggle { display: inline-flex; align-items: center; gap: 7px; font-size: 13.5px; color: var(--ink-2); cursor: pointer; user-select: none; }
+.toggle input { accent-color: var(--s1); }
+.spacer { flex: 1; }
+.linkbtn { border: 0; background: none; color: var(--s1); font: inherit; font-size: 13.5px; cursor: pointer; padding: 4px 2px; }
+
+/* chart */
+.chart { position: relative; width: 100%; }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.chart .tt { position: absolute; pointer-events: none; background: var(--raised); border: 1px solid var(--ring); box-shadow: var(--shadow); border-radius: 10px; padding: 8px 10px; font-size: 12.5px; min-width: 170px; opacity: 0; transition: opacity .08s; z-index: 5; }
+.tt .tt-h { color: var(--ink-2); margin-bottom: 4px; }
+.tt .row { display: flex; align-items: center; gap: 8px; justify-content: space-between; }
+.tt .row .k { display: flex; align-items: center; gap: 6px; color: var(--ink-2); }
+.tt .row .v { font-weight: 650; color: var(--ink); font-variant-numeric: tabular-nums; }
+.key { display: inline-block; width: 14px; height: 0; border-top: 2px solid; vertical-align: middle; }
+.key.band { height: 10px; border: 0; border-radius: 2px; }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--ink-2); margin-top: 8px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.axis text { fill: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.readout { background: var(--accent-wash); border-radius: 12px; padding: 12px 14px; margin-top: 12px; color: var(--ink); font-size: 14.5px; }
+.readout b { font-weight: 650; }
+
+/* tables */
+table.t { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+table.t th { text-align: left; color: var(--ink-2); font-weight: 600; border-bottom: 1px solid var(--axis); padding: 7px 8px; white-space: nowrap; }
+table.t td { border-bottom: 1px solid var(--grid); padding: 7px 8px; font-variant-numeric: tabular-nums; }
+table.t td.n, table.t th.n { text-align: right; }
+.tablewrap { overflow-x: auto; margin-top: 10px; }
+.hidden { display: none !important; }
+
+/* verdict */
+.verdict { display: flex; gap: 14px; align-items: flex-start; }
+.badge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 650; letter-spacing: .02em; border-radius: 999px; padding: 3px 9px; }
+.badge.good { background: color-mix(in srgb, var(--good) 14%, transparent); color: var(--good-ink); }
+.badge.partial { background: color-mix(in srgb, var(--warn) 22%, transparent); color: var(--ink); }
+.badge.bad { background: color-mix(in srgb, var(--crit) 14%, transparent); color: var(--crit); }
+.badge.info { background: var(--surface-2); color: var(--ink-2); }
+.verdict h3 { margin: 6px 0 4px; font-size: 16px; }
+.verdict .big { font-size: 34px; font-weight: 700; letter-spacing: -.02em; margin: 6px 0 2px; }
+.small { font-size: 13px; color: var(--ink-2); }
+
+/* meters */
+.meter { margin: 10px 0 4px; }
+.meter .bar { position: relative; height: 10px; background: var(--surface-2); border-radius: 999px; }
+.meter .target { position: absolute; top: 0; bottom: 0; background: color-mix(in srgb, var(--good) 28%, transparent); border-radius: 999px; }
+.meter .mark { position: absolute; top: -4px; width: 4px; height: 18px; border-radius: 2px; background: var(--s1); box-shadow: 0 0 0 2px var(--surface); }
+.meter .lab { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+/* audience + steps */
+.aud h3 { margin: 10px 0 6px; font-size: 16.5px; }
+.aud p { margin: 0 0 10px; color: var(--ink-2); font-size: 14px; }
+.aud ul { margin: 0; padding-left: 18px; color: var(--ink); font-size: 14px; }
+.aud li { margin: 3px 0; }
+.ico { width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; background: var(--accent-wash); color: var(--s1); }
+.steps { counter-reset: s; display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+@media (max-width: 960px) { .steps { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 560px) { .steps { grid-template-columns: 1fr; } }
+.step { position: relative; padding-top: 34px; }
+.step::before { counter-increment: s; content: counter(s); position: absolute; top: 14px; left: 18px; width: 22px; height: 22px; border-radius: 50%; background: var(--s1); color: #fff; font-size: 12px; font-weight: 700; display: grid; place-items: center; }
+.step h4 { margin: 8px 0 4px; font-size: 15px; } .step p { margin: 0; font-size: 13.5px; color: var(--ink-2); }
+.howread { display: grid; grid-template-columns: 1.1fr 1fr; gap: 18px; align-items: center; }
+@media (max-width: 760px) { .howread { grid-template-columns: 1fr; } }
+pre.code { background: var(--surface-2); border-radius: 12px; padding: 14px; overflow-x: auto; font: 12.5px/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; margin: 8px 0 0; }
+.trust { display: flex; gap: 10px; align-items: flex-start; }
+.trust svg { flex: none; color: var(--good-ink); margin-top: 2px; }
+.trust p { margin: 0; font-size: 14px; } .trust b { display: block; margin-bottom: 2px; }
+ul.lim { columns: 2; column-gap: 28px; padding-left: 18px; margin: 0; }
+@media (max-width: 760px) { ul.lim { columns: 1; } }
+ul.lim li { margin: 0 0 8px; break-inside: avoid; color: var(--ink-2); font-size: 14px; }
+footer { padding: 30px 0 50px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--ring); }
+.tag { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.valbadge { font-size: 11px; font-weight: 700; letter-spacing: .06em; padding: 2px 8px; border-radius: 6px; background: color-mix(in srgb, var(--warn) 25%, transparent); color: var(--ink); }
+.testbadge { font-size: 11px; font-weight: 700; letter-spacing: .06em; padding: 2px 8px; border-radius: 6px; background: var(--accent-wash); color: var(--s1); }
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="#top" aria-label="DengueCast BD home">
+    <svg width="28" height="28" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="var(--s1)"/><path d="M6 22 L12 15 L17 18 L26 8" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    DengueCast BD
+  </a>
+  <nav class="links" aria-label="Sections">
+    <a href="#forecast">This week</a><a href="#record">Track record</a><a href="#use">Who it helps</a>
+    <a href="#how">How it works</a><a href="#build">Build on it</a><a href="#limits">Limits</a>
+  </nav>
+  <button class="icon-btn" id="theme" aria-label="Toggle light or dark theme" title="Toggle theme">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z"/></svg>
+  </button>
+</div></header>
+
+<main id="top">
+  <div class="wrap hero">
+    <span class="eyebrow"><span class="dot"></span><span id="hero-eyebrow">Weekly dengue admission forecasts for Bangladesh</span></span>
+    <h1 id="hero-title">Dengue hospital admissions, forecast 1-4 weeks ahead, with honest ranges.</h1>
+    <p class="lede">DengueCast BD turns public DGHS reports into weekly forecasts for the country and its divisions. Every forecast comes with a range, and every claim is backed by a locked, public test on a season the models never saw.</p>
+    <div class="meta" id="hero-meta"></div>
+  </div>
+
+  <div class="wrap"><div class="grid g4" id="tiles"></div></div>
+
+  <!-- THIS WEEK -->
+  <section class="block" id="forecast"><div class="wrap">
+    <h2>This week's forecast</h2>
+    <p class="sub" id="fc-sub">Observed weekly admissions and the forecast for the next 4 weeks. The darker band is where the number will likely fall (50%), the lighter band where it will very likely fall (90%).</p>
+    <div class="card">
+      <div class="controls">
+        <label class="small" for="fc-unit">Area</label>
+        <select id="fc-unit"></select>
+        <span class="spacer"></span>
+        <button class="linkbtn" id="fc-tablebtn" aria-expanded="false">Show table</button>
+      </div>
+      <div class="chart" id="fc-chart"></div>
+      <div class="legend" id="fc-legend"></div>
+      <div class="readout" id="fc-readout"></div>
+      <div class="tablewrap hidden" id="fc-table"></div>
+    </div>
+    <p class="small" id="fc-skipped" style="margin-top:10px"></p>
+  </div></section>
+
+  <!-- TRACK RECORD -->
+  <section class="block" id="record"><div class="wrap">
+    <h2>Track record: how good were the forecasts?</h2>
+    <p class="sub">A forecast is only useful if it has been right before. We replayed every week of a past season as if it were live, using only data available at the time, and compared each forecast with what actually happened.</p>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="Season" id="season-seg"></div>
+      <span id="season-badge"></span>
+    </div>
+    <div class="grid g3" id="verdicts" style="margin-bottom:14px"></div>
+    <div class="card">
+      <div class="controls">
+        <label class="small" for="tr-unit">Area</label>
+        <select id="tr-unit"></select>
+        <div class="seg" role="group" aria-label="Forecast horizon" id="tr-h"></div>
+        <label class="toggle"><input type="checkbox" id="tr-base"> Compare with simple baseline</label>
+        <span class="spacer"></span>
+        <button class="linkbtn" id="tr-tablebtn" aria-expanded="false">Show table</button>
+      </div>
+      <div class="chart" id="tr-chart"></div>
+      <div class="legend" id="tr-legend"></div>
+      <div class="readout" id="tr-readout"></div>
+      <div class="tablewrap hidden" id="tr-table"></div>
+    </div>
+    <div class="grid g2" style="margin-top:14px">
+      <div class="card">
+        <span class="tag">Error vs. the simple baseline</span>
+        <p class="small" style="margin:4px 0 10px">Average forecast error (WIS) relative to persistence ("next weeks = this week"), forecasts 1-3 weeks ahead, with 95% intervals. Below 1 = better than the baseline.</p>
+        <div class="chart" id="models-chart"></div>
+        <div class="tablewrap hidden" id="models-table"></div>
+        <button class="linkbtn" id="models-tablebtn" aria-expanded="false">Show table</button>
+      </div>
+      <div class="card">
+        <span class="tag">Are the ranges honest?</span>
+        <p class="small" style="margin:4px 0 6px">Share of weeks where the truth fell inside the ensemble's range, 1-3 weeks ahead. Green = the pre-registered target band.</p>
+        <div id="meters"></div>
+        <span class="tag" style="display:block;margin-top:16px">By epidemic phase</span>
+        <div class="tablewrap" id="phase-table"></div>
+      </div>
+    </div>
+  </div></section>
+
+  <!-- WHO IT HELPS -->
+  <section class="block" id="use"><div class="wrap">
+    <h2>Who it helps, and how to use it</h2>
+    <p class="sub">The forecasts are free, public and updated weekly. Here is how different people can turn them into decisions.</p>
+    <div class="grid g4">
+      <div class="card aud">
+        <div class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 9h6M12 6v6M9 21v-4h6v4"/></svg></div>
+        <h3>Hospital managers</h3>
+        <p>Plan beds, staff and IV fluids for the coming weeks.</p>
+        <ul><li>Plan for the <b>upper end</b> of the 90% range, not the middle.</li><li>Watch the 2-4 week bands for your division.</li><li>Rising bands = start surge preparations early.</li></ul>
+      </div>
+      <div class="card aud">
+        <div class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></div>
+        <h3>Health planners</h3>
+        <p>Compare divisions and move resources before the peak.</p>
+        <ul><li>Rank divisions by forecast next-week admissions.</li><li>Check the track record per division before trusting it.</li><li>Use the CSV files for your own reports.</li></ul>
+      </div>
+      <div class="card aud">
+        <div class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-9V3"/></svg></div>
+        <h3>Researchers</h3>
+        <p>Reproduce every number and test better models fairly.</p>
+        <ul><li>Locked plan (<code>prereg-v1</code>) and a leakage-free replay.</li><li>Add a model as one Python function.</li><li>Score it against the same baselines.</li></ul>
+      </div>
+      <div class="card aud">
+        <div class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v11H8l-4 4z"/></svg></div>
+        <h3>Journalists &amp; public</h3>
+        <p>Report what is coming without overclaiming.</p>
+        <ul><li>Quote the range, not just one number.</li><li>These are reported hospital admissions, not infections.</li><li>Past accuracy is public; live accuracy is not yet scored.</li></ul>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <div class="howread">
+        <div>
+          <span class="tag">How to read a forecast</span>
+          <h3 style="margin:6px 0 8px;font-size:18px">One number is never the full story.</h3>
+          <p class="small" style="font-size:14.5px">Each forecast gives a <b>middle estimate</b> and two ranges. In the 2024 test, the true number fell inside the darker <b>50% range</b> about half the time and inside the lighter <b>90% range</b> most of the time, which is what honest ranges should do. Ranges get wider the further ahead you look: that is uncertainty, not a flaw.</p>
+          <p class="small" style="font-size:14.5px;margin-bottom:0"><b>Simple rule:</b> plan capacity for the top of the 90% range; expect the middle estimate.</p>
+        </div>
+        <div class="chart" id="explain-chart" aria-label="Diagram of a forecast with middle estimate and ranges"></div>
+      </div>
+    </div>
+
+    <div class="grid g3" style="margin-top:14px" id="downloads"></div>
+  </div></section>
+
+  <!-- HOW IT WORKS -->
+  <section class="block" id="how"><div class="wrap">
+    <h2>How it works</h2>
+    <p class="sub">Five steps, each automated and tested. The point is not a clever model; it is forecasts you can trust because nothing could leak from the future.</p>
+    <div class="steps">
+      <div class="card step"><h4>Collect</h4><p>DGHS daily releases (2026) and the public Mendeley daily dataset (2022-2024), saved unchanged with SHA-256 hashes.</p></div>
+      <div class="card step"><h4>Archive with time</h4><p>Every value records when it became known. Code reads data only "as of" a moment, never later.</p></div>
+      <div class="card step"><h4>Clean by rules</h4><p>Epi weeks, incomplete weeks left missing (never guessed), past-only outlier checks.</p></div>
+      <div class="card step"><h4>Forecast</h4><p>Baselines, a time-series model (ARIMA), a machine-learning model (LightGBM) and their ensemble.</p></div>
+      <div class="card step"><h4>Score honestly</h4><p>Weekly replay, weighted interval score, coverage, bootstrap intervals, verdicts set in advance.</p></div>
+    </div>
+    <div class="grid g3" style="margin-top:14px">
+      <div class="card trust"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg><p><b>Plan locked before testing</b>Git tag <code>prereg-v1</code> was pushed before any 2024 data was loaded; the test ran once.</p></div>
+      <div class="card trust"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg><p><b>No future leakage</b>A forecast from the full archive equals one from an archive cut at forecast time; an injected leak makes the tests fail.</p></div>
+      <div class="card trust"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg><p><b>Nothing rewritten</b>The archive and published forecasts are append-only, enforced in CI on every push.</p></div>
+    </div>
+  </div></section>
+
+  <!-- BUILD -->
+  <section class="block" id="build"><div class="wrap">
+    <h2>Build on it</h2>
+    <p class="sub">Everything is open source (MIT). Clone it, reproduce the results, or plug in your own model and score it against the same locked baselines.</p>
+    <div class="grid g2">
+      <div class="card">
+        <span class="tag">Reproduce</span>
+<pre class="code">git clone https://github.com/rashed-ahammod/denguecast-bd
+cd denguecast-bd
+python -m venv .venv
+.venv/Scripts/python -m pip install -r requirements.txt
+.venv/Scripts/python -m pytest -q
+.venv/Scripts/python -m denguecast.evaluate --season 2023</pre>
+      </div>
+      <div class="card">
+        <span class="tag">Add your own model</span>
+<pre class="code"># src/denguecast/models.py
+def my_model(history, origin):
+    """history: unit, week_end, value (only data &lt;= origin).
+    Return rows: unit, origin_week_end, horizon,
+    target_week_end, quantile, value (9 quantiles)."""
+    ...
+# register it in evaluate.replay(), then:
+#   python -m denguecast.evaluate --season 2023</pre>
+      </div>
+    </div>
+    <div class="grid g3" style="margin-top:14px">
+      <div class="card"><span class="tag">Weekly live run</span><p class="small" style="font-size:14px;margin:6px 0 0">Enter that week's 7 DGHS releases in <code>data/manual/daily_releases.csv</code> (rows must add up to the stated total), then the <code>forecast</code> workflow publishes every Saturday 22:30 BDT.</p></div>
+      <div class="card"><span class="tag">Ideas to improve</span><p class="small" style="font-size:14px;margin:6px 0 0">Weather features (Open-Meteo), city-corporation forecasts, a DGHS dashboard parser, Bangla summaries, live scoring once truth is final.</p></div>
+      <div class="card"><span class="tag">Rules for contributors</span><p class="small" style="font-size:14px;margin:6px 0 0">Never invent data; read only through <code>get_data(as_of)</code>; never edit published forecasts; log plan changes in <code>docs/DEVIATIONS.md</code>.</p></div>
+    </div>
+  </div></section>
+
+  <!-- LIMITS -->
+  <section class="block" id="limits"><div class="wrap">
+    <h2>Limits and data quality</h2>
+    <p class="sub">What these forecasts can and cannot tell you.</p>
+    <div class="grid g4" id="quality" style="margin-bottom:14px"></div>
+    <div class="card">
+      <ul class="lim">
+        <li>Targets are hospital admissions reported by DGHS, not infections. Not a clinical tool.</li>
+        <li>Only one season (2024) is a true test; 2023 results were used for tuning and are optimistic.</li>
+        <li>The 2022-2024 data has no separate Dhaka city corporations and no national series: national = sum of the eight divisions.</li>
+        <li>The first live forecast (24 Oct 2026) was published late and flagged <code>late: true</code>; it was never back-dated.</li>
+        <li>Its inputs were transcribed from newspaper reprints; the 20 Oct release disagrees across sources, so Rajshahi and Dhaka were not forecast that week.</li>
+        <li>The live forecast uses the simple persistence model; the stronger ensemble is evaluated in the backtest.</li>
+        <li>No weather or population data yet; serotype shifts and immunity are not in public data.</li>
+        <li>Division level is too coarse to target mosquito control within cities. Live accuracy cannot be claimed until forecasts are scored.</li>
+      </ul>
+    </div>
+  </div></section>
+</main>
+
+<footer><div class="wrap">
+  <div>Data: Directorate General of Health Services (DGHS), Bangladesh; Naher (2026), Mendeley Data <a href="https://data.mendeley.com/datasets/z5mvwrfgsz/1">z5mvwrfgsz v1</a>, CC BY 4.0. Code: MIT.</div>
+  <div style="margin-top:6px">Every number on this page is read from <code>forecasts/</code> and <code>results/</code> in the <a id="repo-link" href="#">public repository</a>. HealthSphere AI track, International AI Builders Congress 2026.</div>
+</div></footer>
+
+<script id="data" type="application/json">/*__DATA__*/null</script>
+<script>
+(function () {
+  "use strict";
+  const D = JSON.parse(document.getElementById("data").textContent);
+  const NAMES = D.unit_names;
+  const $ = (id) => document.getElementById(id);
+  const fmt = (v) => v == null ? "–" : Math.round(v).toLocaleString("en-US");
+  const pct = (v) => v == null ? "–" : (v * 100).toFixed(1) + "%";
+  const fx = (v, d = 2) => v == null ? "–" : Number(v).toFixed(d);
+  const dshort = (s) => { const d = new Date(s + "T00:00:00Z"); return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" }); };
+  const dlong = (s) => { const d = new Date(s + "T00:00:00Z"); return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }); };
+  const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const SVGNS = "http://www.w3.org/2000/svg";
+  function el(tag, attrs, parent) { const e = document.createElementNS(SVGNS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+  function h(tag, attrs, text) { const e = document.createElement(tag); if (attrs) for (const k in attrs) e.setAttribute(k, attrs[k]); if (text != null) e.textContent = text; return e; }
+  function niceMax(v) { if (!(v > 0)) return 10; const p = Math.pow(10, Math.floor(Math.log10(v))); for (const m of [1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]) if (m * p >= v) return m * p; return 10 * p; }
+  function compact(v) { return v >= 1000 ? (v / 1000).toFixed(v >= 10000 ? 0 : 1).replace(/\.0$/, "") + "K" : String(Math.round(v)); }
+
+  /* theme toggle: per-viewer convenience only */
+  const root = document.documentElement;
+  try { const t = localStorage.getItem("dc-theme"); if (t) root.setAttribute("data-theme", t); } catch (e) {}
+  $("theme").addEventListener("click", () => {
+    const dark = root.getAttribute("data-theme") ? root.getAttribute("data-theme") === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+    const next = dark ? "light" : "dark"; root.setAttribute("data-theme", next);
+    try { localStorage.setItem("dc-theme", next); } catch (e) {}
+    renderAll();
+  });
+  $("repo-link").href = D.repo;
+
+  /* ---------- generic time chart: bands + lines + crosshair tooltip ---------- */
+  function timeChart(container, cfg) {
+    container.textContent = "";
+    const W = Math.max(320, container.clientWidth || 800), H = cfg.height || 300;
+    const m = { t: 14, r: 16, b: 30, l: 46 };
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": cfg.label || "chart" }, container);
+    const xs = cfg.x, n = xs.length;
+    const X = (i) => m.l + (n <= 1 ? 0 : (i / (n - 1)) * (W - m.l - m.r));
+    let ymax = 0;
+    for (const b of cfg.bands || []) for (const v of b.hi) if (v != null) ymax = Math.max(ymax, v);
+    for (const s of cfg.series) for (const v of s.values) if (v != null) ymax = Math.max(ymax, v);
+    ymax = niceMax(ymax * 1.04);
+    const Y = (v) => H - m.b - (v / ymax) * (H - m.t - m.b);
+    const g = el("g", { class: "axis" }, svg);
+    for (let k = 0; k <= 4; k++) {
+      const v = (ymax / 4) * k, y = Y(v);
+      el("line", { x1: m.l, x2: W - m.r, y1: y, y2: y, stroke: k === 0 ? css("--axis") : css("--grid"), "stroke-width": 1 }, g);
+      const t = el("text", { x: m.l - 8, y: y + 4, "text-anchor": "end" }, g); t.textContent = compact(v);
+    }
+    const every = Math.max(1, Math.ceil(n / Math.max(3, Math.floor((W - m.l - m.r) / 70))));
+    for (let i = 0; i < n; i += every) { const t = el("text", { x: X(i), y: H - 9, "text-anchor": "middle" }, g); t.textContent = dshort(xs[i]); }
+    if (cfg.divider != null) {
+      const x = X(cfg.divider);
+      el("line", { x1: x, x2: x, y1: m.t, y2: H - m.b, stroke: css("--axis"), "stroke-width": 1 }, svg);
+      const t = el("text", { x: x + 6, y: m.t + 10, fill: css("--muted"), "font-size": 11 }, svg); t.textContent = cfg.dividerLabel || "";
+    }
+    function area(lo, hi) {
+      let d = "", started = false; const pts = [];
+      for (let i = 0; i < n; i++) if (lo[i] != null && hi[i] != null) pts.push(i);
+      if (!pts.length) return "";
+      pts.forEach((i, k) => { d += (k ? "L" : "M") + X(i) + "," + Y(hi[i]); });
+      for (let k = pts.length - 1; k >= 0; k--) d += "L" + X(pts[k]) + "," + Y(lo[pts[k]]);
+      return d + "Z";
+    }
+    for (const b of cfg.bands || []) el("path", { d: area(b.lo, b.hi), fill: b.fill }, svg);
+    function line(vals) { let d = "", pen = false; for (let i = 0; i < n; i++) { if (vals[i] == null) { pen = false; continue; } d += (pen ? "L" : "M") + X(i) + "," + Y(vals[i]); pen = true; } return d; }
+    for (const s of cfg.series) {
+      el("path", { d: line(s.values), fill: "none", stroke: s.color, "stroke-width": s.width || 2, "stroke-linejoin": "round", "stroke-linecap": "round" }, svg);
+      if (s.dots) for (let i = 0; i < n; i++) if (s.values[i] != null) el("circle", { cx: X(i), cy: Y(s.values[i]), r: 4, fill: s.color, stroke: css("--surface"), "stroke-width": 2 }, svg);
+    }
+    /* hover layer */
+    const cross = el("line", { y1: m.t, y2: H - m.b, stroke: css("--axis"), "stroke-width": 1, opacity: 0 }, svg);
+    const hl = cfg.series.map((s) => el("circle", { r: 5, fill: s.color, stroke: css("--surface"), "stroke-width": 2, opacity: 0 }, svg));
+    const tt = h("div", { class: "tt", role: "status" }); container.appendChild(tt);
+    const hit = el("rect", { x: m.l, y: m.t, width: W - m.l - m.r, height: H - m.t - m.b, fill: "transparent", tabindex: 0, "aria-label": "Move to read values" }, svg);
+    let cur = n - 1;
+    function show(i) {
+      cur = i; const x = X(i);
+      cross.setAttribute("x1", x); cross.setAttribute("x2", x); cross.setAttribute("opacity", 1);
+      cfg.series.forEach((s, k) => { const v = s.values[i]; if (v == null) { hl[k].setAttribute("opacity", 0); return; } hl[k].setAttribute("cx", x); hl[k].setAttribute("cy", Y(v)); hl[k].setAttribute("opacity", 1); });
+      tt.textContent = "";
+      tt.appendChild(h("div", { class: "tt-h" }, (cfg.tipTitle ? cfg.tipTitle(i) : "Week ending " + dlong(xs[i]))));
+      for (const r of cfg.tip(i)) {
+        if (r.v == null) continue;
+        const row = h("div", { class: "row" }); const k = h("span", { class: "k" });
+        const key = h("span", { class: r.band ? "key band" : "key" }); if (r.band) key.style.background = r.color; else key.style.borderColor = r.color;
+        k.appendChild(key); k.appendChild(document.createTextNode(r.k)); row.appendChild(k); row.appendChild(h("span", { class: "v" }, r.v)); tt.appendChild(row);
+      }
+      tt.style.opacity = 1;
+      const bw = container.clientWidth, scale = bw / W, tw = tt.offsetWidth;
+      let left = x * scale + 14; if (left + tw > bw) left = x * scale - tw - 14;
+      tt.style.left = Math.max(0, left) + "px"; tt.style.top = "8px";
+    }
+    function hide() { cross.setAttribute("opacity", 0); hl.forEach((c) => c.setAttribute("opacity", 0)); tt.style.opacity = 0; }
+    function idxFromEvent(ev) { const r = svg.getBoundingClientRect(); const px = (ev.clientX - r.left) * (W / r.width); return Math.max(0, Math.min(n - 1, Math.round(((px - m.l) / (W - m.l - m.r)) * (n - 1)))); }
+    hit.addEventListener("pointermove", (ev) => show(idxFromEvent(ev)));
+    hit.addEventListener("pointerleave", hide);
+    hit.addEventListener("focus", () => show(cur)); hit.addEventListener("blur", hide);
+    hit.addEventListener("keydown", (ev) => { if (ev.key === "ArrowLeft") { show(Math.max(0, cur - 1)); ev.preventDefault(); } if (ev.key === "ArrowRight") { show(Math.min(n - 1, cur + 1)); ev.preventDefault(); } });
+  }
+  function legend(target, items) {
+    target.textContent = "";
+    for (const it of items) { const s = h("span"); const k = h("span", { class: it.band ? "key band" : "key" }); if (it.band) k.style.background = it.color; else k.style.borderColor = it.color; s.appendChild(k); s.appendChild(document.createTextNode(it.label)); target.appendChild(s); }
+  }
+  function table(target, head, rows, numeric) {
+    target.textContent = ""; const t = h("table", { class: "t" }); const tr = h("tr");
+    head.forEach((c, i) => tr.appendChild(h("th", numeric && numeric[i] ? { class: "n" } : null, c))); const th = h("thead"); th.appendChild(tr); t.appendChild(th);
+    const tb = h("tbody"); for (const r of rows) { const row = h("tr"); r.forEach((c, i) => row.appendChild(h("td", numeric && numeric[i] ? { class: "n" } : null, c))); tb.appendChild(row); }
+    t.appendChild(tb); target.appendChild(t);
+  }
+  function tableToggle(btn, box) { btn.addEventListener("click", () => { const open = box.classList.toggle("hidden") === false; btn.setAttribute("aria-expanded", open); btn.textContent = open ? "Hide table" : "Show table"; }); }
+
+  /* ---------- hero + tiles ---------- */
+  function renderHero() {
+    const L = D.live, T = D.test;
+    const meta = $("hero-meta"); meta.textContent = "";
+    if (L && L.units.NATIONAL) {
+      const f1 = L.units.NATIONAL.forecast.find((r) => r.h === 1);
+      $("hero-eyebrow").textContent = "Latest forecast · week ending " + dlong(f1.week);
+      const t = $("hero-title"); t.textContent = "";
+      t.appendChild(document.createTextNode("Next week, Bangladesh can expect about "));
+      t.appendChild(h("span", { class: "num" }, fmt(f1.q500)));
+      t.appendChild(document.createTextNode(" dengue hospital admissions."));
+      meta.appendChild(h("span", { class: "chip" }, "Likely " + fmt(f1.q250) + " – " + fmt(f1.q750)));
+      meta.appendChild(h("span", { class: "chip" }, "Very likely " + fmt(f1.q50) + " – " + fmt(f1.q950)));
+      if (L.meta.late) meta.appendChild(h("span", { class: "chip warn" }, "Published late (" + L.meta.created_at_bdt.slice(0, 16).replace("T", " ") + " BDT)"));
+    }
+    if (T && T.verdicts) meta.appendChild(h("span", { class: "chip ok" }, "2024 test: " + Math.round((1 - T.verdicts.h1_rel) * 100) + "% lower error than baseline"));
+    const tiles = $("tiles"); tiles.textContent = "";
+    const add = (label, value, note) => { const c = h("div", { class: "card tile" }); c.appendChild(h("div", { class: "label" }, label)); c.appendChild(h("div", { class: "value" }, value)); c.appendChild(h("div", { class: "note" }, note)); tiles.appendChild(c); };
+    if (L && L.units.NATIONAL) {
+      const hist = L.units.NATIONAL.history; const last = hist[hist.length - 1];
+      add("Admissions last week (national)", fmt(last[1]), "Week ending " + dlong(last[0]) + ", from DGHS releases");
+    }
+    if (T && T.verdicts) {
+      add("Error vs. simple baseline (2024 test)", fx(T.verdicts.h1_rel) + "×", "95% interval " + fx(T.verdicts.h1_lo) + "–" + fx(T.verdicts.h1_hi) + ", 1-3 weeks ahead");
+      add("Truth inside the 90% range", pct(T.verdicts.cov90), "2024 test, target 82–95%");
+    }
+    if (L) add("Areas forecast this week", Object.keys(L.units).length + " of 12", "Others lacked a complete week of data");
+  }
+
+  /* ---------- this week ---------- */
+  function renderForecast() {
+    const L = D.live; if (!L) { $("forecast").querySelector(".card").textContent = "No live forecast has been published yet."; return; }
+    const sel = $("fc-unit");
+    if (!sel.options.length) { for (const u of Object.keys(L.units)) sel.appendChild(h("option", { value: u }, NAMES[u] || u)); sel.addEventListener("change", renderForecast); }
+    const U = L.units[sel.value || "NATIONAL"];
+    const hist = U.history, fc = U.forecast;
+    const x = hist.map((r) => r[0]).concat(fc.map((r) => r.week));
+    const nh = hist.length; const pad = (arr) => Array(nh - 1).fill(null).concat(arr);
+    const last = hist[nh - 1][1];
+    const obs = hist.map((r) => r[1]).concat(fc.map(() => null));
+    const q = (k) => pad([last].concat(fc.map((r) => r[k])));
+    timeChart($("fc-chart"), {
+      x, height: 320, label: "Observed and forecast weekly admissions", divider: nh - 1, dividerLabel: "forecast →",
+      bands: [{ lo: q("q50"), hi: q("q950"), fill: css("--band90") }, { lo: q("q250"), hi: q("q750"), fill: css("--band50") }],
+      series: [{ values: obs, color: css("--truth"), dots: true }, { values: q("q500"), color: css("--s1"), dots: true }],
+      tip: (i) => i < nh ? [{ k: "Observed", v: fmt(obs[i]), color: css("--truth") }] : (() => { const r = fc[i - nh]; return [
+        { k: "Middle estimate", v: fmt(r.q500), color: css("--s1") },
+        { k: "Likely (50%)", v: fmt(r.q250) + " – " + fmt(r.q750), color: css("--band50"), band: true },
+        { k: "Very likely (90%)", v: fmt(r.q50) + " – " + fmt(r.q950), color: css("--band90"), band: true }]; })(),
+      tipTitle: (i) => (i < nh ? "Observed · week ending " : (i - nh + 1) + " week" + (i - nh ? "s" : "") + " ahead · week ending ") + dlong(x[i]),
+    });
+    legend($("fc-legend"), [{ label: "Observed", color: css("--truth") }, { label: "Middle estimate", color: css("--s1") }, { label: "Likely range (50%)", color: css("--band50"), band: true }, { label: "Very likely range (90%)", color: css("--band90"), band: true }]);
+    const f1 = fc[0], f4 = fc[fc.length - 1];
+    const ro = $("fc-readout"); ro.textContent = "";
+    ro.appendChild(document.createTextNode((NAMES[sel.value] || sel.value) + ": next week (to " + dlong(f1.week) + ") expect about "));
+    ro.appendChild(h("b", null, fmt(f1.q500))); ro.appendChild(document.createTextNode(" admissions, likely " + fmt(f1.q250) + "–" + fmt(f1.q750) + ", very likely " + fmt(f1.q50) + "–" + fmt(f1.q950) + ". For planning 4 weeks out, prepare for up to "));
+    ro.appendChild(h("b", null, fmt(f4.q950))); ro.appendChild(document.createTextNode(" (top of the 90% range)."));
+    table($("fc-table"), ["Week ending", "Weeks ahead", "Middle", "Likely 50%", "Very likely 90%"],
+      hist.map((r) => [dlong(r[0]), "observed", fmt(r[1]), "", ""]).concat(fc.map((r) => [dlong(r.week), String(r.h), fmt(r.q500), fmt(r.q250) + " – " + fmt(r.q750), fmt(r.q50) + " – " + fmt(r.q950)])), [0, 0, 1, 1, 1]);
+    const m = L.meta;
+    if (nh < 4) ro.appendChild(h("div", { class: "small", style: "margin-top:6px" }, "Only " + nh + " observed week" + (nh > 1 ? "s" : "") + " of 2026 data so far: weekly entry of DGHS releases began with the week ending " + dlong(hist[0][0]) + ". The ranges come from 2022-2023 week-to-week changes."));
+    const sk = $("fc-skipped"); sk.textContent = "";
+    sk.appendChild(document.createTextNode("Model: " + m.model + " (next weeks = this week, ranges from past week-to-week changes). Created " + m.created_at_bdt.slice(0, 16).replace("T", " ") + " BDT, commit " + m.code_commit.slice(0, 7) + ". Not forecast this week (incomplete data): " + m.units_skipped.map((u) => NAMES[u] || u).join(", ") + ". Files: "));
+    const a1 = h("a", { href: L.files.csv }, "CSV"); const a2 = h("a", { href: L.files.json }, "metadata"); sk.appendChild(a1); sk.appendChild(document.createTextNode(" · ")); sk.appendChild(a2);
+  }
+
+  /* ---------- track record ---------- */
+  let SEASON = D.test ? "test" : "validation";
+  let HZ = "1";
+  function renderSeasonControls() {
+    const seg = $("season-seg"); seg.textContent = "";
+    for (const [key, label] of [["test", "2024 · test"], ["validation", "2023 · validation"]]) {
+      if (!D[key]) continue;
+      const b = h("button", { "aria-pressed": SEASON === key }, label); b.addEventListener("click", () => { SEASON = key; renderRecord(); }); seg.appendChild(b);
+    }
+    const S = D[SEASON]; const badge = $("season-badge"); badge.textContent = "";
+    badge.appendChild(h("span", { class: S.label === "TEST" ? "testbadge" : "valbadge" }, S.label === "TEST" ? "TEST · SEEN ONCE, AFTER LOCKING THE PLAN" : "VALIDATION · USED FOR TUNING, OPTIMISTIC"));
+    const hs = $("tr-h"); hs.textContent = "";
+    for (const k of ["1", "2", "3", "4"]) { const b = h("button", { "aria-pressed": HZ === k }, k + " wk ahead"); b.addEventListener("click", () => { HZ = k; renderRecord(); }); hs.appendChild(b); }
+  }
+  function verdictCard(title, status, big, text) {
+    const c = h("div", { class: "card verdict" }); const inner = h("div");
+    const cls = status === "SUPPORTED" ? "good" : status === "PARTLY SUPPORTED" ? "partial" : status === "NOT SUPPORTED" ? "bad" : "info";
+    const icon = cls === "good" ? "✓ " : cls === "bad" ? "✕ " : cls === "partial" ? "◐ " : "";
+    inner.appendChild(h("span", { class: "badge " + cls }, icon + status)); inner.appendChild(h("h3", null, title));
+    inner.appendChild(h("div", { class: "big" }, big)); inner.appendChild(h("div", { class: "small" }, text)); c.appendChild(inner); return c;
+  }
+  function renderRecord() {
+    renderSeasonControls();
+    const S = D[SEASON];
+    const vb = $("verdicts"); vb.textContent = "";
+    if (S.verdicts) {
+      const V = S.verdicts;
+      vb.appendChild(verdictCard("H1 · Better than the baseline?", V.h1, fx(V.h1_rel) + "×",
+        "Ensemble error relative to persistence, 1-3 weeks ahead, all areas. 95% interval " + fx(V.h1_lo) + "–" + fx(V.h1_hi) + ". Supported if the whole interval is below 1."));
+      vb.appendChild(verdictCard("H2 · Honest ranges?", V.h2, pct(V.cov90),
+        "Truth inside the 90% range (target 82–95%); inside the 50% range " + pct(V.cov50) + " (target 42–58%)."));
+      const best = S.phases.slice().sort((a, b) => a.rel - b.rel)[0];
+      vb.appendChild(verdictCard("H4 · By epidemic phase", "DESCRIPTIVE", S.phases.length + " phases",
+        "Ensemble beats the baseline in " + S.phases.filter((p) => p.rel < 1).length + " of " + S.phases.length + " phases; largest gain during " + best.phase + " (" + fx(best.rel) + "×)."));
+    }
+    const sel = $("tr-unit");
+    const keep = sel.value; sel.textContent = "";
+    for (const u of S.units) sel.appendChild(h("option", { value: u }, NAMES[u] || u));
+    sel.value = S.units.includes(keep) ? keep : S.units[0];
+    if (!sel.dataset.bound) { sel.addEventListener("change", renderTrack); $("tr-base").addEventListener("change", renderTrack); sel.dataset.bound = 1; }
+    renderTrack(); renderModels(); renderMeters();
+  }
+  function renderTrack() {
+    const S = D[SEASON], u = $("tr-unit").value, rows = S.track[u][HZ];
+    const x = rows.map((r) => r[0]), col = (i) => rows.map((r) => r[i]);
+    const base = $("tr-base").checked;
+    const series = [{ values: col(7), color: css("--truth"), width: 2 }, { values: col(3), color: css("--s1"), width: 2 }];
+    if (base) series.push({ values: col(6), color: css("--s2"), width: 2 });
+    timeChart($("tr-chart"), {
+      x, height: 300, label: "Forecast versus actual admissions", series,
+      bands: [{ lo: col(1), hi: col(5), fill: css("--band90") }, { lo: col(2), hi: col(4), fill: css("--band50") }],
+      tip: (i) => { const r = rows[i]; const out = [{ k: "Actual", v: fmt(r[7]), color: css("--truth") }, { k: "Ensemble middle", v: fmt(r[3]), color: css("--s1") },
+        { k: "90% range", v: fmt(r[1]) + " – " + fmt(r[5]), color: css("--band90"), band: true }];
+        if (base) out.push({ k: "Baseline (persistence)", v: fmt(r[6]), color: css("--s2") }); if (r[8]) out.push({ k: "Phase", v: r[8], color: "transparent" }); return out; },
+      tipTitle: (i) => "Week ending " + dlong(x[i]) + " · forecast made " + HZ + " wk earlier",
+    });
+    const items = [{ label: "Actual admissions", color: css("--truth") }, { label: "Ensemble forecast (middle)", color: css("--s1") }, { label: "50% range", color: css("--band50"), band: true }, { label: "90% range", color: css("--band90"), band: true }];
+    if (base) items.push({ label: "Simple baseline (persistence)", color: css("--s2") });
+    legend($("tr-legend"), items);
+    let in90 = 0, nn = 0; for (const r of rows) if (r[7] != null) { nn++; if (r[7] >= r[1] && r[7] <= r[5]) in90++; }
+    const ro = $("tr-readout"); ro.textContent = "";
+    ro.appendChild(document.createTextNode((NAMES[u] || u) + ", forecasts made " + HZ + " week" + (HZ === "1" ? "" : "s") + " ahead in " + S.season + ": the actual number fell inside the 90% range in "));
+    ro.appendChild(h("b", null, in90 + " of " + nn + " weeks")); ro.appendChild(document.createTextNode(". Hover the chart to compare any week."));
+    table($("tr-table"), ["Week ending", "Actual", "Ensemble middle", "50% range", "90% range", "Baseline", "Phase"],
+      rows.map((r) => [dlong(r[0]), fmt(r[7]), fmt(r[3]), fmt(r[2]) + " – " + fmt(r[4]), fmt(r[1]) + " – " + fmt(r[5]), fmt(r[6]), r[8] || ""]), [0, 1, 1, 1, 1, 1, 0]);
+  }
+  function renderModels() {
+    const S = D[SEASON], box = $("models-chart"); box.textContent = "";
+    const order = ["ensemble", "b3", "model_a", "seasonal_naive"].filter((m) => S.models[m]);
+    const W = Math.max(260, box.clientWidth || 500), narrow = W < 480, rowH = 44, m = { l: narrow ? 96 : 178, r: narrow ? 44 : 58, t: 24, b: 26 };
+    const SHORT = { ensemble: "Ensemble", b3: "B3 ARIMA", model_a: "Model A", seasonal_naive: "B2 Seasonal" };
+    const H = m.t + m.b + rowH * order.length, XMAX = 1.6;
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Relative error by model" }, box);
+    const X = (v) => m.l + (Math.min(v, XMAX) / XMAX) * (W - m.l - m.r);
+    const g = el("g", { class: "axis" }, svg);
+    for (const v of [0, 0.5, 1, 1.5]) { el("line", { x1: X(v), x2: X(v), y1: m.t, y2: H - m.b, stroke: v === 0 ? css("--axis") : css("--grid") }, g); const t = el("text", { x: X(v), y: H - 8, "text-anchor": "middle" }, g); t.textContent = v + "×"; }
+    el("line", { x1: X(1), x2: X(1), y1: m.t - 2, y2: H - m.b, stroke: css("--s2"), "stroke-width": 2 }, svg);
+    const tl = el("text", { x: X(1), y: m.t - 8, "text-anchor": "middle", fill: css("--ink-2"), "font-size": 11 }, svg); tl.textContent = "baseline = 1×";
+    const tt = h("div", { class: "tt" }); box.appendChild(tt);
+    order.forEach((key, i) => {
+      const md = S.models[key], y = m.t + i * rowH + rowH / 2, hl = key === "ensemble";
+      const name = el("text", { x: m.l - 10, y: y + 4, "text-anchor": "end", fill: css(hl ? "--ink" : "--ink-2"), "font-size": 12.5, "font-weight": hl ? 650 : 400 }, svg); name.textContent = narrow ? SHORT[key] : md.name;
+      const x0 = X(0), x1 = X(md.rel13), bh = 16;
+      el("path", { d: `M${x0},${y - bh / 2} H${x1 - 4} Q${x1},${y - bh / 2} ${x1},${y - bh / 2 + 4} V${y + bh / 2 - 4} Q${x1},${y + bh / 2} ${x1 - 4},${y + bh / 2} H${x0} Z`, fill: hl ? css("--s1") : css("--axis") }, svg);
+      if (md.lo13 != null) { const a = X(md.lo13), b = X(md.hi13); el("line", { x1: a, x2: b, y1: y, y2: y, stroke: css("--ink"), "stroke-width": 1.5 }, svg); el("line", { x1: a, x2: a, y1: y - 5, y2: y + 5, stroke: css("--ink"), "stroke-width": 1.5 }, svg); if (md.hi13 <= XMAX) el("line", { x1: b, x2: b, y1: y - 5, y2: y + 5, stroke: css("--ink"), "stroke-width": 1.5 }, svg); }
+      const off = md.rel13 > XMAX;
+      const lab = el("text", off ? { x: X(XMAX) - 8, y: y + 4, "text-anchor": "end", fill: css("--ink"), "font-size": 12, "font-weight": 600 }
+                                 : { x: X(Math.max(md.rel13, md.hi13 || 0)) + 6, y: y + 4, fill: css("--ink"), "font-size": 12, "font-weight": 600 }, svg);
+      lab.textContent = fx(md.rel13) + "×" + (off ? (narrow ? " →" : " · off scale →") : "");
+      const hit = el("rect", { x: 0, y: y - rowH / 2, width: W, height: rowH, fill: "transparent", tabindex: 0 }, svg);
+      const tip = () => { tt.textContent = ""; tt.appendChild(h("div", { class: "tt-h" }, md.name));
+        for (const [k, v] of [["Relative error", fx(md.rel13) + "×"], ["95% interval", fx(md.lo13) + " – " + fx(md.hi13)], ["Log scale", fx(md.rel13_log) + "×"]]) { const r = h("div", { class: "row" }); r.appendChild(h("span", { class: "k" }, k)); r.appendChild(h("span", { class: "v" }, v)); tt.appendChild(r); }
+        tt.style.opacity = 1; tt.style.left = Math.min(box.clientWidth - 190, (x1 * box.clientWidth) / W) + "px"; tt.style.top = ((y + 14) * box.clientWidth) / W + "px"; };
+      hit.addEventListener("pointerenter", tip); hit.addEventListener("focus", tip);
+      hit.addEventListener("pointerleave", () => (tt.style.opacity = 0)); hit.addEventListener("blur", () => (tt.style.opacity = 0));
+    });
+    table($("models-table"), ["Model", "Relative error (1-3 wk)", "95% interval", "Log scale", "WIS 1 wk", "WIS 4 wk"],
+      ["persistence"].concat(order).map((k) => { const md = S.models[k]; return [md.name, fx(md.rel13) + "×", md.lo13 == null ? "comparator" : fx(md.lo13) + " – " + fx(md.hi13), fx(md.rel13_log) + "×", fmt(md.by_h["1"].wis), fmt(md.by_h["4"].wis)]; }), [0, 1, 1, 1, 1, 1]);
+  }
+  function renderMeters() {
+    const S = D[SEASON], box = $("meters"); box.textContent = "";
+    if (!S.verdicts) return;
+    for (const [label, v, lo, hi] of [["90% range", S.verdicts.cov90, 0.82, 0.95], ["50% range", S.verdicts.cov50, 0.42, 0.58]]) {
+      const w = h("div", { class: "meter" });
+      const top = h("div", { class: "row" }); top.style.display = "flex"; top.style.justifyContent = "space-between";
+      top.appendChild(h("span", { class: "small" }, "Truth inside the " + label)); top.appendChild(h("b", null, pct(v))); w.appendChild(top);
+      const bar = h("div", { class: "bar", role: "img", "aria-label": label + " coverage " + pct(v) + ", target " + pct(lo) + " to " + pct(hi) });
+      const t = h("div", { class: "target" }); t.style.left = lo * 100 + "%"; t.style.width = (hi - lo) * 100 + "%"; bar.appendChild(t);
+      const mk = h("div", { class: "mark" }); mk.style.left = "calc(" + v * 100 + "% - 2px)"; bar.appendChild(mk); w.appendChild(bar);
+      const lab = h("div", { class: "lab" }); lab.appendChild(h("span", null, "0%")); lab.appendChild(h("span", null, "target " + pct(lo).replace(".0", "") + "–" + pct(hi).replace(".0", ""))); lab.appendChild(h("span", null, "100%")); w.appendChild(lab);
+      box.appendChild(w);
+    }
+    const order = ["growth", "peak", "decline", "plateau", "low"];
+    table($("phase-table"), ["Phase", "Forecasts", "Error vs baseline", "In 90% range"],
+      S.phases.slice().sort((a, b) => order.indexOf(a.phase) - order.indexOf(b.phase)).map((p) => [p.phase, String(p.n), fx(p.rel) + "×", pct(p.cov90)]), [0, 1, 1, 1]);
+  }
+
+  /* ---------- explainer diagram ---------- */
+  function renderExplain() {
+    const box = $("explain-chart"); box.textContent = "";
+    const W = 500, H = 196; const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "A forecast has a middle estimate, a likely 50% range and a very likely 90% range" }, box);
+    const xs = [40, 140, 240, 340], mid = [120, 112, 104, 96], s50 = [16, 24, 32, 40], s90 = [34, 50, 64, 76];
+    const path = (a, sgn) => xs.map((x, i) => (i ? "L" : "M") + x + "," + (mid[i] + sgn * a[i])).join("");
+    const area = (a) => path(a, -1) + xs.slice().reverse().map((x, j) => { const i = 3 - j; return "L" + x + "," + (mid[i] + a[i]); }).join("") + "Z";
+    el("path", { d: area(s90), fill: css("--band90") }, svg); el("path", { d: area(s50), fill: css("--band50") }, svg);
+    el("path", { d: xs.map((x, i) => (i ? "L" : "M") + x + "," + mid[i]).join(""), stroke: css("--s1"), "stroke-width": 2, fill: "none" }, svg);
+    xs.forEach((x, i) => el("circle", { cx: x, cy: mid[i], r: 4, fill: css("--s1"), stroke: css("--surface"), "stroke-width": 2 }, svg));
+    const lab = (x, y, t, anchor) => { const e = el("text", { x, y, fill: css("--ink-2"), "font-size": 12, "text-anchor": anchor || "start" }, svg); e.textContent = t; };
+    lab(348, 98, "middle estimate"); lab(348, 140, "likely (50%)"); lab(348, 176, "very likely (90%)");
+    el("line", { x1: 340, x2: 345, y1: 136, y2: 136, stroke: css("--axis") }, svg);
+    xs.forEach((x, i) => lab(x, 186, "+" + (i + 1) + " wk", "middle"));
+  }
+
+  /* ---------- downloads + quality ---------- */
+  function renderDownloads() {
+    const box = $("downloads"); box.textContent = ""; const R = D.repo + "/blob/main/";
+    const items = [["Live forecast files", "Latest forecast as CSV (9 quantiles per area and horizon) plus metadata.", D.live ? D.live.files.csv : R + "forecasts"],
+      ["2024 test results", "Every forecast, score and phase, plus the full written report.", R + "docs/results.md"],
+      ["The locked plan", "What was decided before testing, and every change since.", R + "docs/preregistration.md"]];
+    for (const [t, d, href] of items) { const c = h("a", { class: "card", href }); c.style.display = "block"; c.appendChild(h("span", { class: "tag" }, "Download / read")); const ht = h("h3", null, t); ht.style.margin = "6px 0 4px"; ht.style.fontSize = "16px"; ht.style.color = "var(--ink)"; c.appendChild(ht); c.appendChild(h("p", { class: "small" }, d)); box.appendChild(c); }
+    const q = D.quality, qb = $("quality"); qb.textContent = "";
+    if (q) for (const [l, v, n] of [["Weekly records, 2022-2023", fmt(q.unit_weeks), q.units + " areas × 104 weeks"], ["Missing weeks", fmt(q.missing), "never filled in"], ["Recovered weeks", fmt(q.recovered), "from cumulative totals"], ["Outlier weeks flagged", fmt(q.outliers), "clipped for model input only"]]) {
+      const c = h("div", { class: "card tile" }); c.appendChild(h("div", { class: "label" }, l)); c.appendChild(h("div", { class: "value" }, v)); c.appendChild(h("div", { class: "note" }, n)); qb.appendChild(c);
+    }
+  }
+
+  function renderAll() { renderHero(); renderForecast(); if (D.test || D.validation) renderRecord(); renderExplain(); renderDownloads(); }
+  tableToggle($("fc-tablebtn"), $("fc-table")); tableToggle($("tr-tablebtn"), $("tr-table")); tableToggle($("models-tablebtn"), $("models-table"));
+  renderAll();
+  let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(renderAll, 150); });
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", renderAll);
+})();
+</script>
+</body>
+</html>
