@@ -5,3 +5,6 @@ epiweeks==2.4.0
 lightgbm>=4.3
 statsmodels>=0.14
 pytest>=8
+optuna>=3.6
+matplotlib>=3.8
+scikit-learn>=1.4
