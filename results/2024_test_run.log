@@ -1,0 +1,78 @@
+== 2026-10-25T09:45:11Z commit 90e282a725c26f059169dc367816b773076b9531
+Mendeley z5mvwrfgsz, epi years [2024]: appended 3276 rows (3276 built).
+DNCC/DSCC separate: False; national series in source: False; NATIONAL constructed for 364 days (D10).
+  BARISHAL_DIV     days=364 2023-12-31..2024-12-28 missing_days=0 invalid=0
+  CHATTOGRAM_DIV   days=364 2023-12-31..2024-12-28 missing_days=0 invalid=0
+  DHAKA_DIV_TOTAL  days=364 2023-12-31..2024-12-28 missing_days=0 invalid=0
+  KHULNA_DIV       days=364 2023-12-31..2024-12-28 missing_days=0 invalid=0
+  MYMENSINGH_DIV   days=364 2023-12-31..2024-12-28 missing_days=0 invalid=0
+  RAJSHAHI_DIV     days=364 2023-12-31..2024-12-28 missing_days=0 invalid=0
+  RANGPUR_DIV      days=364 2023-12-31..2024-12-28 missing_days=0 invalid=0
+  SYLHET_DIV       days=364 2023-12-31..2024-12-28 missing_days=0 invalid=0
+Replay season 2024: building weekly histories as known at each origin ...
+  52 origins
+Running models ...
+breakdown level          model scale    n   mean_wis        mae    cov50    cov90  relative_wis
+      all   all             b3 count 1782  61.695420 137.686295 0.476431 0.872615      0.574852
+      all   all             b3 log1p 1782   0.260850   0.527957 0.476431 0.872615      0.796577
+      all   all       ensemble count 1782  59.062959 126.408106 0.455107 0.841751      0.550324
+      all   all       ensemble log1p 1782   0.249786   0.505546 0.455107 0.841751      0.762789
+      all   all        model_a count 1782  82.153270 144.213449 0.364759 0.700898      0.765469
+      all   all        model_a log1p 1782   0.306616   0.563436 0.364759 0.700898      0.936334
+      all   all    persistence count 1782 107.324064 180.629068 0.459596 0.900112      1.000000
+      all   all    persistence log1p 1782   0.327464   0.644560 0.461279 0.900673      1.000000
+      all   all seasonal_naive count 1782 932.480706 918.176207 0.438833 0.830527      8.688459
+      all   all seasonal_naive log1p 1782   0.697973   1.155111 0.438833 0.830527      2.131448
+  horizon     1             b3 count  459  46.159589  90.377054 0.507625 0.840959      0.714683
+  horizon     2             b3 count  450  55.404543 121.513198 0.497778 0.864444      0.596382
+  horizon     3             b3 count  441  66.624944 155.255148 0.455782 0.882086      0.556700
+  horizon     4             b3 count  432  79.723014 186.864470 0.442130 0.905093      0.513865
+  horizon     1             b3 log1p  459   0.224732   0.430806 0.507625 0.840959      0.885784
+  horizon     2             b3 log1p  450   0.248309   0.489228 0.497778 0.864444      0.811521
+  horizon     3             b3 log1p  441   0.272745   0.567098 0.455782 0.882086      0.775591
+  horizon     4             b3 log1p  432   0.300147   0.631566 0.442130 0.905093      0.743846
+  horizon     1       ensemble count  459  44.673779  83.344832 0.472767 0.816993      0.691678
+  horizon     2       ensemble count  450  52.034410 108.566160 0.475556 0.831111      0.560106
+  horizon     3       ensemble count  441  64.310801 143.385761 0.455782 0.861678      0.537364
+  horizon     4       ensemble count  432  76.315696 173.416840 0.414352 0.858796      0.491902
+  horizon     1       ensemble log1p  459   0.217163   0.414667 0.472767 0.816993      0.855951
+  horizon     2       ensemble log1p  450   0.241471   0.470951 0.475556 0.831111      0.789172
+  horizon     3       ensemble log1p  441   0.260873   0.540064 0.455782 0.861678      0.741831
+  horizon     4       ensemble log1p  432   0.281792   0.602905 0.414352 0.858796      0.698357
+  horizon     1        model_a count  459  59.468153  95.398078 0.361656 0.692810      0.920738
+  horizon     2        model_a count  450  69.962511 119.658164 0.377778 0.673333      0.753086
+  horizon     3        model_a count  441  88.481701 161.995222 0.378685 0.700680      0.739329
+  horizon     4        model_a count  432 112.494640 203.505978 0.340278 0.738426      0.725098
+  horizon     1        model_a log1p  459   0.249303   0.435499 0.361656 0.692810      0.982631
+  horizon     2        model_a log1p  450   0.290999   0.518166 0.377778 0.673333      0.951039
+  horizon     3        model_a log1p  441   0.322880   0.598270 0.378685 0.700680      0.918158
+  horizon     4        model_a log1p  432   0.367174   0.710964 0.340278 0.738426      0.909958
+  horizon     1    persistence count  459  64.587507 106.958606 0.420479 0.871460      1.000000
+  horizon     2    persistence count  450  92.901046 157.537778 0.444444 0.880000      1.000000
+  horizon     3    persistence count  441 119.678366 207.238095 0.480726 0.918367      1.000000
+  horizon     4    persistence count  432 155.143949 255.793981 0.495370 0.932870      1.000000
+  horizon     1    persistence log1p  459   0.253710   0.474745 0.422658 0.871460      1.000000
+  horizon     2    persistence log1p  450   0.305980   0.592949 0.446667 0.880000      1.000000
+  horizon     3    persistence log1p  441   0.351661   0.700065 0.480726 0.920635      1.000000
+  horizon     4    persistence log1p  432   0.403507   0.822090 0.497685 0.932870      1.000000
+  horizon     1 seasonal_naive count  459 912.093301 891.904139 0.450980 0.858388     14.121822
+  horizon     2 seasonal_naive count  450 924.363995 909.177778 0.444444 0.837778      9.949985
+  horizon     3 seasonal_naive count  441 939.144162 927.278912 0.435374 0.825397      7.847234
+  horizon     4 seasonal_naive count  432 955.794954 946.171296 0.423611 0.798611      6.160698
+  horizon     1 seasonal_naive log1p  459   0.662569   1.143600 0.450980 0.858388      2.611522
+  horizon     2 seasonal_naive log1p  450   0.686674   1.150901 0.444444 0.837778      2.244178
+  horizon     3 seasonal_naive log1p  441   0.710590   1.161267 0.435374 0.825397      2.020668
+  horizon     4 seasonal_naive log1p  432   0.734480   1.165443 0.423611 0.798611      1.820243
+{
+ "label": "TEST",
+ "comparator": "persistence",
+ "forecasts_made": {
+  "b3": 1872,
+  "seasonal_naive": 1872,
+  "model_a": 1872,
+  "ensemble": 1872,
+  "persistence": 1872
+ },
+ "forecasts_scored_common": 1782
+}
+exit=0 at 2026-10-25T09:50:11Z
