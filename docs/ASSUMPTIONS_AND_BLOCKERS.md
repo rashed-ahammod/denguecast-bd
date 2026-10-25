@@ -11,7 +11,31 @@ Last updated: 2026-10-25. Every item states what was actually checked. "Unverifi
 | V3 | Release parser reads real reprints correctly | 6 real 2026 reprints in `tests/fixtures/`; all parsed as hand-checked. 2 of the 6 are incomplete (areas sum to 640 vs 730 and 701 vs 702); the parser flags both. |
 | V4 | Leakage test L10 detects leaks | A deliberately injected leak (ignoring `as_of`) made all 4 leakage cases and 2 related tests fail; restored code passes. |
 | V5 | Test suite | 49 tests pass locally (Python 3.12 on 2026-10-22; re-run Python 3.13.5 on 2026-10-25, `49 passed in 18.76s`). Model tests use synthetic data and verify mechanics only. |
+| V7 | Data workflows could not import the package | `probe`, `scrape` and `forecast` ran `python -m denguecast...` without `src` on the path (`ModuleNotFoundError` reproduced locally). Added `PYTHONPATH: src` to those jobs. |
 | V6 | `requirements.txt` was incomplete | `models.py` uses `lightgbm.LGBMRegressor`, which needs scikit-learn; on a clean venv the 4 Model A / ensemble tests failed with `LightGBMError: scikit-learn is required`. Added `scikit-learn` (plus `optuna`, `matplotlib` per Step 1); all 49 then pass. No code or test changed. |
+
+## Step 0: Mendeley z5mvwrfgsz v1 check (2026-10-25, 2022-2023 rows only)
+
+Downloaded by `python -m denguecast.probe` run locally on 2026-10-25 07:57 UTC (internet reachable from the team laptop); all files hashed in `data/archive/raw_manifest.csv`, report in `docs/probe_report.md`. Inspection read only rows whose date ends in `22` or `23`; 2024 rows were filtered out while reading and never printed or summarised (only their row count, 366, was seen while checking the date format).
+
+| Check | Finding |
+| --- | --- |
+| Files | 8 CSVs, one per division: Barisal, Chittagong, Dhaka, khulna, Mymensingh, Rajshahi, Rangpur, Sylhet (+ a transaction-receipt PDF, not data) |
+| Licence | CC BY 4.0 (API `data_licence` field): reuse allowed with credit |
+| Frequency | Daily. Date format `dd-mm-yy` (first field reaches >12, second never does) |
+| Coverage | 365 rows for 2022 and 365 for 2023 in every file: no missing days |
+| Values | Column `effected-<division>` (Dhaka.csv: `Division`,`effected`). Stored as floats (`"0.0"`); every 2022-2023 value is a non-negative whole number; no empty cells |
+| DNCC / DSCC | **Not separate.** A single `Dhaka` series |
+| National series | **None in the dataset.** Sum of the 8 files: 2022 = 62,124; 2023 = 321,209 |
+| Meaning of `Dhaka` | Sum of 8 files is within 0.4% (2022) and 0.01% (2023) of the DGHS annual hospitalisation totals widely reported (about 62,382 and 321,179, from memory; not used as data). So `Dhaka` almost certainly = whole Dhaka division **including** DNCC and DSCC. Not verified against an official breakdown |
+| Metric | "effected" = daily new hospital admissions (inferred from totals matching DGHS admissions) |
+| Also contains | Daily weather columns (out of scope, D3) |
+
+Consequence for the plan (needs a GATE 2 decision): the archive's `DHAKA_DIV` means Dhaka division *excluding* the city corporations, which this dataset cannot provide. Backtest units can only be the 7 other divisions, a whole-Dhaka unit, and a NATIONAL series constructed as the sum of the 8 files.
+
+Mendeley cgwjshkx5k v2 (monthly, optional cross-check): downloaded, CC BY 4.0; its `Division` column did not parse cleanly with a plain read; not used.
+
+DGHS dashboard: HTTP 403 (7 bytes) to an automated request from this laptop. No division-table parser is possible from what was retrieved; live data relies on manual entry (guide Section 14 fallback).
 
 ## Assumptions (to confirm or record in the pre-registration before lock)
 
@@ -53,8 +77,8 @@ Status: **awaiting team confirmation at GATE 1.** Source: `DENGUECAST_GUIDE.md` 
 
 | ID | Blocker | What unblocks it | Status |
 | --- | --- | --- | --- |
-| B1 | The development sandbox cannot reach DGHS, Mendeley or Open-Meteo, so the Mendeley 2022-2024 dataset (daily? DNCC/DSCC separate? gaps? licence?) is **unverified** | Run the `probe` workflow on GitHub (open internet); it downloads and reports | Waiting for repository |
-| B2 | DGHS dashboard raw HTML has never been inspected, so no division-table parser exists; the scraper stores raw pages only | Probe report shows how the dashboard delivers its tables | Waiting for B1 |
+| B1 | Mendeley 2022-2024 dataset unverified | Probe run locally 2026-10-25; see Step 0 section | **Resolved** (structure differs from plan: see GATE 2 decision) |
+| B2 | DGHS dashboard raw HTML has never been inspected, so no division-table parser exists; the scraper stores raw pages only | Probe report shows how the dashboard delivers its tables | Dashboard returned HTTP 403 on 2026-10-25; manual entry only |
 | B3 | Creating and pushing the public repository needs the team's GitHub account | Team creates the repo and pushes this code | Waiting for team |
 | B4 | The first live forecast (Sat 24 Oct, origin W42) needs W42 values for every unit plus at least 20 weekly log ratios of history | Either B2 resolved, or the 7 daily releases for 18-24 Oct transcribed into `data/manual/daily_releases.csv` with sources, plus enough earlier weeks | Open |
 | B5 | Weather (Open-Meteo) and population (census 2022) are not ingested | After B1 confirms Open-Meteo access | Open |

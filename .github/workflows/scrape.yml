@@ -12,6 +12,8 @@ concurrency:
 jobs:
   scrape:
     runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: src
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
