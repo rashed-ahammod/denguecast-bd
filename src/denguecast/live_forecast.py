@@ -121,6 +121,10 @@ def main(argv=None) -> int:
                 late=bool(created > deadline), code_commit=_git_sha())
     out_dir.mkdir(parents=True, exist_ok=True)
     fc.to_csv(csv_path, index=False)
+    # Observed weekly values the forecast was built from (last 12 weeks per unit), for the dashboard.
+    hist = weekly_series(as_of)
+    hist = hist[pd.to_datetime(hist["week_end"]) <= origin].sort_values(["unit", "week_end"]).groupby("unit").tail(12)
+    hist[["unit", "week_end", "value", "value_clipped", "flag"]].to_csv(out_dir / f"{args.model}_history.csv", index=False)
     meta_path.write_text(json.dumps(meta, indent=2), encoding="utf-8")
     print(f"Published {csv_path} (origin {meta['origin_week_end']}, late={meta['late']})")
     return 0

@@ -1,0 +1,17 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1"><title>DengueCast BD</title>
+<style>
+:root{--bg:#fff;--fg:#111827;--muted:#4b5563;--line:#e5e7eb}
+@media (prefers-color-scheme: dark){:root{--bg:#0b1220;--fg:#e5e7eb;--muted:#9ca3af;--line:#1f2937} img{background:#fff}}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}
+main{max-width:1100px;margin:0 auto;padding:16px} h1{margin:.2em 0} .sub{color:var(--muted)}
+section{border-top:1px solid var(--line);padding:8px 0} .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px}
+figure{margin:0} img{max-width:100%;height:auto;border-radius:4px}
+.tbl{border-collapse:collapse;font-size:13px;display:block;overflow-x:auto} .tbl td,.tbl th{border:1px solid var(--line);padding:2px 6px;text-align:right}
+code{font-size:12px}
+</style></head><body><main>
+<h1>DengueCast BD</h1>
+<p class="sub">Probabilistic forecasts of weekly dengue hospital admissions in Bangladesh, 1-4 weeks ahead, from public data,
+evaluated under a pre-registration. Not a clinical tool. Data: DGHS; Mendeley z5mvwrfgsz v1 (Naher 2026, CC BY 4.0).</p>
+<section><h2>Latest live forecast</h2><p>No live forecast has been published yet.</p></section><section><h2>Backtest: 2024 test season</h2><p>The 2024 backtest has not been run yet.</p></section><section><h2>Validation: 2023 (optimistic; used for tuning and choosing the comparator)</h2><p>The 2023 backtest has not been run yet.</p></section><section><h2>Data quality</h2><p>2022-2023 weekly series (9 units, 936 unit-weeks): recovered 0, missing 0, flagged as outliers (rule 9) 167. Source: <code>results/data_report/weekly_2022_2023.csv</code>.</p></section><section><h2>Limitations</h2><ul><li>Targets are hospital admissions reported by DGHS, not infections.</li><li>Only one season (2024) is a true test; 2023 results are validation and therefore optimistic.</li><li>The 2022-2024 data (Mendeley z5mvwrfgsz) has no separate Dhaka city corporations and no national series; national values in the backtest are the sum of the eight divisions (amendment D10).</li><li>Weather and population features are not used yet.</li><li>Reporting coverage has changed over time; serotype shifts and immunity are not in public data.</li><li>Division level is too coarse to target mosquito control within cities.</li><li>Live forecasts cannot be scored yet; no claim of live accuracy is made.</li><li>The first live forecast (origin 24 Oct 2026) was published late; see docs/DEVIATIONS.md.</li></ul></section>
+</main></body></html>
