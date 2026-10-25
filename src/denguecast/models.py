@@ -1,18 +1,18 @@
 """Model A, B3 and the ensemble (pre-registration Section 7).
 
-STATUS: implemented and tested on SYNTHETIC data for mechanics only (shapes,
-sorted quantiles, no use of data after the origin, determinism). Not yet
-trained or evaluated on real data, and hyperparameters are not tuned.
+Tested on SYNTHETIC data for mechanics (shapes, sorted quantiles, no use of
+data after the origin, determinism, fit-once/predict-later). Real-data
+results come from evaluate.py.
 
 Model A: LightGBM, quantile loss, one model per (horizon, quantile), pooled
 across units, direct strategy. Weather and population features are optional
-and are used only when provided (they are not ingested yet: blocker B1).
+and are used only when provided (not used for 26 October: D3).
 
 B3: per-unit ARIMA on log(1 + y). The pre-registration says SARIMA; a
 52-week seasonal term cannot be estimated from the single 2022 training
 season, so when fewer than MIN_SEASONS_FOR_SAR seasons are available the
-annual cycle is modelled with Fourier regressors instead. This is proposed
-deviation P3 (docs/ASSUMPTIONS_AND_BLOCKERS.md) and needs approval before lock.
+annual cycle is modelled with Fourier regressors instead. This is amendment
+D4 (P3 in docs/ASSUMPTIONS_AND_BLOCKERS.md).
 
 Ensemble: equal-weight quantile-wise average of Model A and B3.
 """
@@ -65,8 +65,15 @@ def _features(wide_log: pd.DataFrame, unit_codes: dict[str, int], weather: pd.Da
     return feats
 
 
-def model_a(history: pd.DataFrame, origin, horizons=config.HORIZONS, quantiles=config.QUANTILES,
-            weather: pd.DataFrame | None = None, params: dict | None = None) -> pd.DataFrame:
+def fit_model_a(history: pd.DataFrame, origin, horizons=config.HORIZONS, quantiles=config.QUANTILES,
+                weather: pd.DataFrame | None = None, params: dict | None = None,
+                early_stop_weeks: int | None = None, early_stop_rounds: int = 100) -> dict:
+    """Fit one LightGBM quantile model per (horizon, quantile) on data up to origin.
+
+    With ``early_stop_weeks``, the number of trees is chosen by early stopping
+    on the rows whose target week falls in the last ``early_stop_weeks`` weeks
+    before origin; the model is then refitted on all rows with that many trees.
+    Everything used is at or before origin."""
     origin = pd.Timestamp(origin)
     params = {**LGB_PARAMS, **(params or {})}
     wide = _wide(history, origin)
@@ -76,8 +83,8 @@ def model_a(history: pd.DataFrame, origin, horizons=config.HORIZONS, quantiles=c
     unit_codes = {u: i for i, u in enumerate(sorted(wide.columns))}
     feats = _features(wide_log, unit_codes, weather)
     feat_cols = [c for c in feats.columns if c not in ("week_end", "unit")]
-    pred_rows = feats[feats["week_end"] == origin]
-    out = []
+    fitted = {"origin": origin, "unit_codes": unit_codes, "feat_cols": feat_cols, "models": {}, "n_trees": {},
+              "horizons": list(horizons), "quantiles": list(quantiles)}
     for h in horizons:
         target = wide_log.shift(-h).stack(future_stack=True).rename("y").reset_index()
         target.columns = ["week_end", "unit", "y"]
@@ -86,19 +93,51 @@ def model_a(history: pd.DataFrame, origin, horizons=config.HORIZONS, quantiles=c
         train = train[train["week_end"] + pd.Timedelta(weeks=h) <= origin]
         if len(train) < 50:
             raise InsufficientHistory(f"Model A h={h}: only {len(train)} training rows")
-        preds = []
         for q in quantiles:
-            m = lgb.LGBMRegressor(objective="quantile", alpha=q, **params)
+            p = dict(params)
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
+                if early_stop_weeks:
+                    cut = origin - pd.Timedelta(weeks=early_stop_weeks)
+                    is_val = train["week_end"] + pd.Timedelta(weeks=h) > cut
+                    m = lgb.LGBMRegressor(objective="quantile", alpha=q, **p)
+                    m.fit(train.loc[~is_val, feat_cols], train.loc[~is_val, "y"], categorical_feature=["unit_code"],
+                          eval_set=[(train.loc[is_val, feat_cols], train.loc[is_val, "y"])],
+                          callbacks=[lgb.early_stopping(early_stop_rounds, verbose=False)])
+                    p["n_estimators"] = max(int(m.best_iteration_ or p["n_estimators"]), 1)
+                m = lgb.LGBMRegressor(objective="quantile", alpha=q, **p)
                 m.fit(train[feat_cols], train["y"], categorical_feature=["unit_code"])
-            preds.append(m.predict(pred_rows[feat_cols]))
+            fitted["models"][(h, q)] = m
+            fitted["n_trees"][(h, q)] = p["n_estimators"]
+    return fitted
+
+
+def predict_model_a(fitted: dict, history: pd.DataFrame, origin, weather: pd.DataFrame | None = None) -> pd.DataFrame:
+    """Forecast at ``origin`` (>= the fit origin) with a fitted Model A, using
+    features built from history up to origin. Units unseen at fit time are skipped."""
+    origin = pd.Timestamp(origin)
+    if origin < fitted["origin"]:
+        raise ValueError("cannot predict at an origin before the fit origin")
+    wide = _wide(history, origin)
+    wide = wide[[u for u in wide.columns if u in fitted["unit_codes"]]]
+    feats = _features(np.log1p(wide), fitted["unit_codes"], weather)
+    pred_rows = feats[feats["week_end"] == origin]
+    out = []
+    for h in fitted["horizons"]:
+        preds = [fitted["models"][(h, q)].predict(pred_rows[fitted["feat_cols"]]) for q in fitted["quantiles"]]
         vals = np.clip(np.sort(np.expm1(np.vstack(preds).T), axis=1), 0, None)
         for u, row in zip(pred_rows["unit"], vals):
             out += [dict(unit=u, origin_week_end=origin.date(), horizon=h,
                          target_week_end=(origin + pd.Timedelta(weeks=h)).date(), quantile=q, value=v,
-                         interval_basis="model_a") for q, v in zip(quantiles, row)]
+                         interval_basis="model_a") for q, v in zip(fitted["quantiles"], row)]
     return pd.DataFrame(out, columns=FORECAST_COLS)
+
+
+def model_a(history: pd.DataFrame, origin, horizons=config.HORIZONS, quantiles=config.QUANTILES,
+            weather: pd.DataFrame | None = None, params: dict | None = None) -> pd.DataFrame:
+    """Fit at origin and forecast from origin."""
+    fitted = fit_model_a(history, origin, horizons, quantiles, weather, params)
+    return predict_model_a(fitted, history, origin, weather)
 
 
 def _fourier(index: pd.DatetimeIndex, k: int = 2) -> pd.DataFrame:

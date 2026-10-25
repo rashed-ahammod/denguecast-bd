@@ -24,11 +24,12 @@ from . import archive, baselines, cleaning, config
 BDT = "Asia/Dhaka"
 
 
-def weekly_series(as_of, archive_file: Path | None = None, log: cleaning.QualityLog | None = None) -> pd.DataFrame:
+def weekly_series(as_of, archive_file: Path | None = None, log: cleaning.QualityLog | None = None,
+                  include_test_seasons: bool = False) -> pd.DataFrame:
     """Weekly admissions per unit as known at as_of: unit, week_end, value, value_clipped.
     Uses published epi-week rows where present, otherwise aggregates daily rows."""
     log = log or cleaning.QualityLog()
-    kw = dict(archive_file=archive_file)
+    kw = dict(archive_file=archive_file, include_test_seasons=include_test_seasons)
     ep = archive.get_data(as_of=as_of, metrics=["admissions"], period="epiweek", **kw)
     day = archive.get_data(as_of=as_of, metrics=["admissions"], period="day", **kw)
     cum = archive.get_data(as_of=as_of, metrics=["cumulative_admissions"], period="day", **kw)
