@@ -100,6 +100,8 @@ def fit_model_a(history: pd.DataFrame, origin, horizons=config.HORIZONS, quantil
                 if early_stop_weeks:
                     cut = origin - pd.Timedelta(weeks=early_stop_weeks)
                     is_val = train["week_end"] + pd.Timedelta(weeks=h) > cut
+                    if not is_val.any() or is_val.all():
+                        raise InsufficientHistory(f"Model A h={h}: no recent weeks to early-stop on before {origin.date()}")
                     m = lgb.LGBMRegressor(objective="quantile", alpha=q, **p)
                     m.fit(train.loc[~is_val, feat_cols], train.loc[~is_val, "y"], categorical_feature=["unit_code"],
                           eval_set=[(train.loc[is_val, feat_cols], train.loc[is_val, "y"])],

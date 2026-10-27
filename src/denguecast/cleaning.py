@@ -184,6 +184,25 @@ def flag_outliers(weekly: pd.DataFrame, log: QualityLog, window: int = 8, k: flo
 
 
 # ------------------------------------------------------- D10: whole Dhaka division
+def add_daily_dhaka_total(daily: pd.DataFrame) -> pd.DataFrame:
+    """Daily DHAKA_DIV_TOTAL = DHAKA_DIV + DNCC + DSCC for report dates where all three
+    are observed and no whole-division figure was published. Days that give Dhaka only
+    as one figure keep that figure, so whole-Dhaka weeks can be complete even when a
+    reprint did not split the city corporations."""
+    if daily.empty:
+        return daily
+    parts = daily[daily["unit"].isin(["DHAKA_DIV", "DNCC", "DSCC"]) & daily["value"].notna()]
+    have = set(daily.loc[(daily["unit"] == config.DHAKA_DIV_TOTAL) & daily["value"].notna(), "reference_date"])
+    rows = []
+    for d, g in parts.groupby("reference_date"):
+        if d in have or set(g["unit"]) != {"DHAKA_DIV", "DNCC", "DSCC"}:
+            continue
+        rows.append({"unit": config.DHAKA_DIV_TOTAL, "reference_date": d, "value": float(g["value"].sum())})
+    if not rows:
+        return daily
+    return pd.concat([daily, pd.DataFrame(rows)], ignore_index=True)
+
+
 def add_dhaka_div_total(weekly: pd.DataFrame, log: QualityLog) -> pd.DataFrame:
     """Add DHAKA_DIV_TOTAL = DHAKA_DIV + DNCC + DSCC (or DHAKA_DIV + DHAKA_CITY)
     for weeks where every part is observed and no DHAKA_DIV_TOTAL row exists.
@@ -192,7 +211,7 @@ def add_dhaka_div_total(weekly: pd.DataFrame, log: QualityLog) -> pd.DataFrame:
     parts = weekly[weekly["unit"].isin(["DHAKA_DIV", "DNCC", "DSCC", config.MERGED_DHAKA_CITY])]
     if parts.empty:
         return weekly
-    have = set(weekly.loc[weekly["unit"] == total, "week_end"])
+    have = set(weekly.loc[(weekly["unit"] == total) & weekly["value"].notna(), "week_end"])
     rows = []
     for wk, g in parts.groupby("week_end"):
         if wk in have:
@@ -211,7 +230,12 @@ def add_dhaka_div_total(weekly: pd.DataFrame, log: QualityLog) -> pd.DataFrame:
                      "value": value, "flag": flags})
     if not rows:
         return weekly
-    return pd.concat([weekly, pd.DataFrame(rows)], ignore_index=True).sort_values(["unit", "week_end"]).reset_index(drop=True)
+    new = pd.DataFrame(rows)
+    # a derived total replaces a missing whole-division row for the same week, never an observed one
+    derived = set(new.loc[new["value"].notna(), "week_end"])
+    keep = ~((weekly["unit"] == total) & weekly["value"].isna() & weekly["week_end"].isin(derived))
+    new = new[~(new["value"].isna() & new["week_end"].isin(set(weekly.loc[weekly["unit"] == total, "week_end"])))]
+    return pd.concat([weekly[keep], new], ignore_index=True).sort_values(["unit", "week_end"]).reset_index(drop=True)
 
 
 # --------------------------------------------------------------- rules 5, 6

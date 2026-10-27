@@ -18,7 +18,9 @@ Usage:  python -m denguecast.ingest_manual
 """
 from __future__ import annotations
 
+import argparse
 import sys
+from pathlib import Path
 
 import pandas as pd
 
@@ -67,11 +69,14 @@ def build_rows(manual: pd.DataFrame, retrieved_at) -> tuple[pd.DataFrame, list[s
     return pd.DataFrame(out), problems
 
 
-def main() -> int:
-    if not MANUAL_FILE.exists():
-        print(f"No manual file at {MANUAL_FILE}; nothing to ingest.")
+def main(argv=None) -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--file", default=str(MANUAL_FILE), help="releases file in the daily_releases.csv format")
+    path = Path(ap.parse_args(argv).file)
+    if not path.exists():
+        print(f"No manual file at {path}; nothing to ingest.")
         return 0
-    manual = pd.read_csv(MANUAL_FILE, dtype={"report_date": str})
+    manual = pd.read_csv(path, dtype={"report_date": str})
     if manual.empty:
         print("Manual file is empty; nothing to ingest.")
         return 0
@@ -79,7 +84,7 @@ def main() -> int:
     for p in problems:
         print(f"REJECTED: {p}", file=sys.stderr)
     n = archive.append_observations(rows) if not rows.empty else 0
-    print(f"Appended {n} rows from {MANUAL_FILE.name}; {len(problems)} problem(s).")
+    print(f"Appended {n} rows from {path.name}; {len(problems)} problem(s).")
     return 1 if problems else 0
 
 

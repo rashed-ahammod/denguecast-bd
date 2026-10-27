@@ -31,7 +31,7 @@ def weekly_series(as_of, archive_file: Path | None = None, log: cleaning.Quality
     log = log or cleaning.QualityLog()
     kw = dict(archive_file=archive_file, include_test_seasons=include_test_seasons)
     ep = archive.get_data(as_of=as_of, metrics=["admissions"], period="epiweek", **kw)
-    day = archive.get_data(as_of=as_of, metrics=["admissions"], period="day", **kw)
+    day = cleaning.add_daily_dhaka_total(archive.get_data(as_of=as_of, metrics=["admissions"], period="day", **kw))
     cum = archive.get_data(as_of=as_of, metrics=["cumulative_admissions"], period="day", **kw)
     parts = []
     if not day.empty:
@@ -63,6 +63,41 @@ def latest_complete_origin(weekly: pd.DataFrame, as_of) -> pd.Timestamp | None:
     return pd.Timestamp(nat["week_end"].max()) if not nat.empty else None
 
 
+MODEL_A_PARAMS_FILE = config.REPO_ROOT / "results" / "2023" / "model_a_params.json"  # locked with prereg-v1
+MIN_WEEKS_B3 = 30
+MIN_RECENT_WEEKS = 8  # Model A's lag features need the last 8 weeks observed
+
+
+def _recent_run(obs_weeks: set, origin: pd.Timestamp) -> int:
+    """Number of consecutive observed weeks ending at origin."""
+    n = 0
+    while origin - pd.Timedelta(weeks=n) in obs_weeks:
+        n += 1
+    return n
+
+
+def _ensemble(history: pd.DataFrame, origin: pd.Timestamp) -> pd.DataFrame:
+    """Ensemble of Model A and B3 for every unit with the last MIN_RECENT_WEEKS weeks
+    observed (ending at origin) and at least MIN_WEEKS_B3 observed weeks in all;
+    other units are listed as skipped."""
+    from . import models
+
+    h = history.copy()
+    h["week_end"] = pd.to_datetime(h["week_end"])
+    obs = h[h["value"].notna() & (h["week_end"] <= origin)]
+    weeks = obs.groupby("unit")["week_end"].apply(set)
+    units = sorted(u for u, ws in weeks.items() if len(ws) >= MIN_WEEKS_B3 and _recent_run(ws, origin) >= MIN_RECENT_WEEKS)
+    skipped = sorted(set(h["unit"]) - set(units))
+    if not units:
+        raise baselines.InsufficientHistory("no unit has an observed origin week and enough history for the ensemble")
+    hu = history[history["unit"].isin(units)]
+    p = json.loads(MODEL_A_PARAMS_FILE.read_text(encoding="utf-8")) if MODEL_A_PARAMS_FILE.exists() else {}
+    fitted = models.fit_model_a(hu, origin, params=p.get("params"), early_stop_weeks=p.get("early_stop_weeks"))
+    fc = models.ensemble(models.predict_model_a(fitted, hu, origin), models.b3_arima(hu, origin))
+    fc.attrs["skipped_units"] = skipped
+    return fc
+
+
 def build_forecast(as_of, model: str = "persistence", archive_file: Path | None = None) -> tuple[pd.DataFrame, dict]:
     log = cleaning.QualityLog()
     weekly = weekly_series(as_of, archive_file=archive_file, log=log)
@@ -74,6 +109,8 @@ def build_forecast(as_of, model: str = "persistence", archive_file: Path | None 
         fc = baselines.persistence(history, origin, on_missing="skip")
     elif model == "seasonal_naive":
         fc = baselines.seasonal_naive(history, origin)
+    elif model == "ensemble":
+        fc = _ensemble(history, origin)
     else:
         raise ValueError(f"unknown model {model!r}")
     meta = {
@@ -98,7 +135,7 @@ def _git_sha() -> str:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--model", default="persistence", choices=["persistence", "seasonal_naive"])
+    ap.add_argument("--model", default="persistence", choices=["persistence", "seasonal_naive", "ensemble"])
     ap.add_argument("--as-of", default=None, help="UTC timestamp; default now (live use)")
     args = ap.parse_args(argv)
     now = archive.utc_now()

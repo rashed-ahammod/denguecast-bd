@@ -70,3 +70,17 @@ def test_revision_summary():
     df = pd.DataFrame({"first_value": [100, 200], "value_1w": [110, 200], "value_2w": [110, 220], "value_4w": [110, 220]})
     s = cleaning.revision_summary(df)
     assert np.isclose(s["value_1w"].iloc[0], 0.05)
+
+
+def test_daily_dhaka_total_from_parts_and_whole_figure_kept():
+    days = [str(date(2026, 10, 18) + timedelta(days=i)) for i in range(7)]
+    rows = [{"unit": "DHAKA_DIV_TOTAL", "reference_date": days[0], "value": 100.0}]
+    for d in days[1:]:
+        rows += [{"unit": u, "reference_date": d, "value": v} for u, v in (("DHAKA_DIV", 5.0), ("DNCC", 3.0), ("DSCC", 2.0))]
+    daily = cleaning.add_daily_dhaka_total(pd.DataFrame(rows))
+    tot = daily[daily["unit"] == "DHAKA_DIV_TOTAL"].set_index("reference_date")["value"]
+    assert tot[days[0]] == 100.0 and (tot[days[1:]] == 10.0).all()
+    log = cleaning.QualityLog()
+    wk = cleaning.add_dhaka_div_total(cleaning.daily_to_weekly(daily, log), log)
+    w = wk.set_index("unit")["value"]
+    assert w["DHAKA_DIV_TOTAL"] == 160.0 and np.isnan(w["DNCC"])  # whole Dhaka complete; parts incomplete

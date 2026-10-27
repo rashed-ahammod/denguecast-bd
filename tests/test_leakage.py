@@ -51,3 +51,13 @@ def test_revisions_are_used_only_after_they_exist(leaky_archive):
     late = archive.get_data("2023-08-10T00:00:00+00:00", period="day", archive_file=leaky_archive)
     v2 = late[(late.unit == "NATIONAL") & (late.reference_date == "2023-05-31")]["value"].iloc[0]
     assert v2 == 2 * v
+
+
+def test_live_ensemble_full_vs_truncated_archive_identical(leaky_archive, tmp_path):
+    as_of = "2023-09-17T13:00:00+00:00"
+    truncated = tmp_path / "truncated.csv"
+    archive.write_truncated_archive(as_of, leaky_archive, truncated)
+    fc_full, _ = live_forecast.build_forecast(as_of, "ensemble", archive_file=leaky_archive)
+    fc_trunc, _ = live_forecast.build_forecast(as_of, "ensemble", archive_file=truncated)
+    assert len(fc_full) > 0
+    pd.testing.assert_frame_equal(fc_full, fc_trunc)

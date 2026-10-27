@@ -54,10 +54,11 @@ def _uorder(units):
 
 
 def live() -> dict | None:
-    metas = sorted(FORECASTS.glob("*/*.json"))
-    if not metas:
+    origins = sorted(d for d in FORECASTS.iterdir() if d.is_dir() and any(d.glob("*.json")))
+    if not origins:
         return None
-    meta_path = metas[-1]
+    latest = origins[-1]  # newest origin; its ensemble is the headline when it exists
+    meta_path = latest / "ensemble.json" if (latest / "ensemble.json").exists() else sorted(latest.glob("*.json"))[0]
     meta = json.loads(meta_path.read_text(encoding="utf-8"))
     fc = pd.read_csv(meta_path.with_suffix(".csv"))
     hist_path = meta_path.with_name(meta_path.stem + "_history.csv")

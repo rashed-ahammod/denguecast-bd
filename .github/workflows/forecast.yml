@@ -5,8 +5,8 @@ on:
   workflow_dispatch:
     inputs:
       model:
-        description: "persistence or seasonal_naive"
-        default: "persistence"
+        description: "leave empty for persistence + ensemble, or one of persistence, seasonal_naive, ensemble"
+        default: ""
 permissions:
   contents: write
 concurrency:
@@ -24,13 +24,23 @@ jobs:
           python-version: "3.12"
       - run: pip install -r requirements.txt
       - run: python -m pytest -q tests/test_leakage.py
+      - name: Collect this week's DGHS releases from newspaper reprints (exact-sum checked)
+        run: python -m denguecast.collect_reprints --start "$(date -u -d '8 days ago' +%F)" --end "$(date -u +%F)" || echo "reprint collection reported problems (see log)"
       - run: python -m denguecast.ingest_manual || echo "manual ingest reported problems (see log)"
-      - run: python -m denguecast.live_forecast --model "${{ github.event.inputs.model || 'persistence' }}"
+      - run: python -m denguecast.ingest_manual --file data/manual/reprints_2026.csv || echo "reprint ingest reported problems (see log)"
+      - name: Live forecasts (ensemble = headline; persistence = baseline for live scoring)
+        run: |
+          if [ -n "${{ github.event.inputs.model }}" ]; then
+            python -m denguecast.live_forecast --model "${{ github.event.inputs.model }}"
+          else
+            python -m denguecast.live_forecast --model persistence || echo "persistence not published (see log)"
+            python -m denguecast.live_forecast --model ensemble || echo "ensemble not published (see log)"
+          fi
       - run: python scripts/build_site.py
       - name: Commit forecast (commit time is the proof of timing)
         run: |
           git config user.name "denguecast-bot"
           git config user.email "denguecast-bot@users.noreply.github.com"
-          git add forecasts/ data/ site/
+          git add forecasts/ data/ site/ results/reprints/
           git diff --cached --quiet || git commit -m "forecast: live $(date -u +%Y-%m-%dT%H:%MZ)"
           git pull --rebase && git push
