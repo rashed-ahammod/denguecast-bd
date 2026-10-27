@@ -1,0 +1,17 @@
+Discovering articles from sitemaps ...
+  358 candidate articles
+  25/358 parsed
+  50/358 parsed
+  75/358 parsed
+  100/358 parsed
+  125/358 parsed
+  150/358 parsed
+  175/358 parsed
+  225/358 parsed
+  250/358 parsed
+  275/358 parsed
+  300/358 parsed
+Accepted 44 days (390 rows) -> data\manual\reprints_2026.csv; report -> results\reprints\reprints_report_2026-08-30_2026-10-17.csv
+status
+rejected    261
+accepted     38

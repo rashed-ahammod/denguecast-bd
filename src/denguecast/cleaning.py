@@ -200,7 +200,10 @@ def add_daily_dhaka_total(daily: pd.DataFrame) -> pd.DataFrame:
         rows.append({"unit": config.DHAKA_DIV_TOTAL, "reference_date": d, "value": float(g["value"].sum())})
     if not rows:
         return daily
-    return pd.concat([daily, pd.DataFrame(rows)], ignore_index=True)
+    derived = {r["reference_date"] for r in rows}
+    # a derived value replaces an empty (e.g. retracted) whole-division row for the same day
+    keep = ~((daily["unit"] == config.DHAKA_DIV_TOTAL) & daily["value"].isna() & daily["reference_date"].isin(derived))
+    return pd.concat([daily[keep], pd.DataFrame(rows)], ignore_index=True)
 
 
 def add_dhaka_div_total(weekly: pd.DataFrame, log: QualityLog) -> pd.DataFrame:

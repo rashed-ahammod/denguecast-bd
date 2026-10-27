@@ -99,3 +99,57 @@ def test_dhaka_outside_city_corporations_phrase():
     total, _ = cr.stated_total("Two more die, 723 hospitalised with dengue fever", paras)
     counts, why = cr.area_counts(paras, total)
     assert total == 723 and counts["DHAKA_DIV"] == 107 and counts["SYLHET_DIV"] == 1 and sum(counts.values()) == 723, why
+
+
+def test_publication_time_formats():
+    assert cr._iso("2026-09-22T13:14:26+06:00.000+00:00").isoformat() == "2026-09-22T13:14:26+06:00"
+    assert cr._iso("1792671558").isoformat() == "2026-10-22T12:19:18+00:00"
+    assert cr._iso("2026-10-24T13:10:20Z").utcoffset().total_seconds() == 0
+    assert cr._published('<script>{"datePublished": "2026-09-23T19:40:00+0600"}</script>').isoformat() == "2026-09-23T19:40:00+06:00"
+
+
+def test_measles_and_single_hospital_articles_rejected():
+    raw = (b'<meta property="og:title" content="Four more die with measles symptoms, 1,306 hospitalised">'
+           b'<meta property="article:published_time" content="2026-10-15T12:00:00+00:00">'
+           b"<p>Four more people have died with measles symptoms over the past 24 hours, while another 1,306 people have been admitted.</p>"
+           b"<p>Of them, 1,000 were admitted in Dhaka Division, 200 in Khulna, 100 in Sylhet and six in Rangpur.</p>")
+    assert "measles" in cr.extract("https://x/m", raw)["reason"]
+    raw = (b'<meta property="og:title" content="Dengue: 127 hospitalised at Mymensingh hospital in 24 hours">'
+           b'<meta property="article:published_time" content="2026-10-09T12:00:00+00:00">'
+           b"<p>In the past 24 hours 127 dengue patients were admitted, all of them in Mymensingh division.</p>")
+    assert "not a national bulletin" in cr.extract("https://x/h", raw)["reason"]
+
+
+def test_morning_articles_rejected_as_ambiguous_date():
+    raw = (b'<meta property="og:title" content="Dengue: 3 die, 1,299 hospitalised in 24 hours">'
+           b'<meta property="article:published_time" content="2026-10-24T03:00:00+00:00">'  # 09:00 BDT
+           b"<p>Three people died of dengue and 1,299 were hospitalised in 24 hours.</p>")
+    assert "before noon" in cr.extract("https://x/a", raw)["reason"]
+
+
+def test_retraction_rows_withdraw_only_dropped_values(tmp_archive):
+    import pandas as pd
+    from denguecast import archive
+    old = pd.DataFrame({"report_date": ["2026-09-12", "2026-09-12", "2026-09-13"], "unit": ["KHULNA_DIV", "SYLHET_DIV", "KHULNA_DIV"]})
+    new = pd.DataFrame({"report_date": ["2026-09-13"], "unit": ["KHULNA_DIV"]})
+    rows = cr.retraction_rows(old, new, "2026-10-27T12:00:00+00:00", "morning article, date ambiguous")
+    assert set(zip(rows.reference_date, rows.unit)) == {("2026-09-12", "KHULNA_DIV"), ("2026-09-12", "SYLHET_DIV"), ("2026-09-12", "NATIONAL")}
+    # appended after an earlier value, the retraction makes get_data return no value for that day
+    first = rows.iloc[[0]].assign(value="5", raw_sha256="orig", note="SYNTHETIC")
+    archive.append_observations(first)
+    archive.append_observations(rows)
+    got = archive.get_data("2026-10-28T00:00:00+00:00", period="day")
+    assert got["value"].isna().all()
+
+
+def test_explicit_zero_area_and_whole_dhaka():
+    paras = [
+        "Two people died of dengue and 790 new patients were hospitalized across the country in the 24 hours to 8am on Friday.",
+        "Among the newly admitted patients between 8am on Thursday and 8am on Friday, 372 were from Dhaka division, 73 from Mymensingh "
+        "division, 196 from Chittagong division, 60 from Khulna division, 38 from Rangpur division, 33 from Rajshahi division and 18 from "
+        "Barisal division.",
+        "No new dengue patients were reported in Sylhet division during the period.",
+    ]
+    total, _ = cr.stated_total("Dengue: Two more die as 790 hospitalized in 24 hours", paras)
+    counts, why = cr.area_counts(paras, total)
+    assert counts["SYLHET_DIV"] == 0 and counts["DHAKA_DIV_TOTAL"] == 372 and sum(counts.values()) == 790, why

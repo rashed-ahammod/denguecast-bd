@@ -47,6 +47,10 @@ CACHE_DIR = config.REPO_ROOT / ".cache" / "reprints"  # local HTTP cache, not co
 OUT_FILE = config.MANUAL_DIR / "reprints_2026.csv"
 REPORT_FILE = config.REPO_ROOT / "results" / "reprints" / "report.csv"  # one file per run, named by date range
 BDT = timezone(timedelta(hours=6))
+MIN_AREAS = 4  # a national bulletin lists several areas; one-area stories are single hospitals or districts
+# DGHS releases the bulletin in the afternoon. Measured on 2026 reprints: articles published 12:00-23:59 BDT
+# matched other sources' same-day total 107/107 times; before noon they were mostly the previous day's (15/19).
+EARLIEST_HOUR_BDT = 12
 
 NUMBER_WORDS = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9,
                 "ten": 10, "eleven": 11, "twelve": 12, "thirteen": 13, "fourteen": 14, "fifteen": 15, "sixteen": 16,
@@ -68,6 +72,8 @@ UNITS = [
 ]
 UNIT_RE = re.compile("|".join(f"(?P<{c}>{p})" for c, p in UNITS))
 DEATH_RE = re.compile(r"\b(die[ds]?|death|deaths|fatalit|toll|killed|lives)\b", re.I)
+ZERO_RE = re.compile(r"\bno\s+(?:new\s+)?(?:dengue\s+)?(?:patients?|admissions?|cases?|hospitali[sz]ations?)\s+(?:were\s+|was\s+)?"
+                     r"(?:reported|recorded|admitted|hospitali[sz]ed|logged)?\s*(?:in|from)\b", re.I)
 ADMIT_RE = re.compile(r"hospitali[sz]|admitt|admission|patients?|logged|recorded|reported", re.I)
 TOTAL_RES = [
     re.compile(r"(\d{1,3}(?:,\d{3})+|\d+)\s+(?:(?:new|more|other|others|fresh|dengue|patients?|people|cases|hospital)\s+){0,3}"
@@ -106,17 +112,40 @@ class Fetcher:
 
 
 # ---------------------------------------------------------------- discovery
-def discover_bdnews(f: Fetcher, start: date, end: date) -> list[str]:
+# Dated sitemaps listed in each site's robots.txt. {d} = YYYY-MM-DD; "monthly" ones use the 1st of the month.
+DAILY_SITEMAPS = [
+    "https://bdnews24.com/sitemap/sitemap-daily-{d}.xml",
+    "https://dailywaadaa.com/sitemap/sitemap-daily-{d}.xml",
+    "https://en.bd-pratidin.com/daily-sitemap/{d}/sitemap.xml",
+]
+MONTHLY_SITEMAPS = ["https://www.dhakatribune.com/{d}.xml"]
+
+
+def _dengue_locs(x: bytes | None) -> list[str]:
+    out = []
+    for block in re.findall(rb"<url>(.*?)</url>", x or b"", re.S):
+        b = block.decode("utf-8", "replace")
+        if re.search(r"dengue", b, re.I):  # in the URL, news title or image caption
+            out.append(re.search(r"<loc>([^<]+)", b).group(1).strip())
+    return out
+
+
+def discover_dated(f: Fetcher, start: date, end: date) -> list[str]:
     urls, d = [], start
     while d <= end + timedelta(days=1):  # an evening article can be listed the next day
-        x = f.get(f"https://bdnews24.com/sitemap/sitemap-daily-{d.isoformat()}.xml")
-        if x:
-            for block in re.findall(rb"<url>(.*?)</url>", x, re.S):
-                b = block.decode("utf-8", "replace")
-                if re.search(r"dengue", b, re.I):
-                    urls.append(re.search(r"<loc>([^<]+)", b).group(1))
+        for tmpl in DAILY_SITEMAPS:
+            urls += _dengue_locs(f.get(tmpl.format(d=d.isoformat())))
         d += timedelta(days=1)
+    months = sorted({date(d.year, d.month, 1) for d in (start + timedelta(days=i) for i in range((end - start).days + 2))})
+    for m in months:
+        for tmpl in MONTHLY_SITEMAPS:
+            urls += _dengue_locs(f.get(tmpl.format(d=m.isoformat())))
     return sorted(set(urls))
+
+
+def discover_bdnews(f: Fetcher, start: date, end: date) -> list[str]:
+    """Kept for callers of the first version; all dated sitemaps are now read by discover_dated."""
+    return discover_dated(f, start, end)
 
 
 def discover_report(f: Fetcher, start: date, end: date) -> list[str]:
@@ -133,15 +162,37 @@ def discover_report(f: Fetcher, start: date, end: date) -> list[str]:
 
 
 # ----------------------------------------------------------------- parsing
+_ISO = re.compile(r"(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?)(?:\.\d+)?(Z|[+-]\d{2}:?\d{2})?")
+
+
+def _iso(v: str) -> datetime | None:
+    if v.isdigit():
+        return datetime.fromtimestamp(int(v), tz=timezone.utc)
+    m = _ISO.search(v)  # first valid timestamp; some sites append a second offset
+    if not m:
+        return None
+    tz = m.group(2) or "+06:00"  # no offset printed: Bangladesh time
+    tz = "+00:00" if tz == "Z" else (tz if ":" in tz else tz[:3] + ":" + tz[3:])
+    return datetime.fromisoformat(m.group(1) + tz)
+
+
+def _published(h: str) -> datetime | None:
+    """Publication time: Open Graph tag, then structured data, then <time datetime>."""
+    for rx in (r'property="article:published_time"\s+content="([^"]+)"', r'"datePublished"\s*:\s*"([^"]+)"',
+               r'<time[^>]+datetime="([^"]+)"'):
+        m = re.search(rx, h)
+        if m and m.group(1).strip():
+            t = _iso(m.group(1).strip())
+            if t:
+                return t
+    return None
+
+
 def page_parts(raw: bytes) -> tuple[str, datetime | None, list[str]]:
     h = raw.decode("utf-8", "replace")
     t = re.search(r'property="og:title"\s+content="([^"]*)"', h) or re.search(r"<title>(.*?)</title>", h, re.S)
     title = htmllib.unescape(t.group(1)).strip() if t else ""
-    pub = None
-    m = re.search(r'property="article:published_time"\s+content="([^"]+)"', h)
-    if m:
-        v = m.group(1)
-        pub = datetime.fromtimestamp(int(v), tz=timezone.utc) if v.isdigit() else datetime.fromisoformat(v.replace("Z", "+00:00"))
+    pub = _published(h)
     paras = [re.sub(r"\s+", " ", htmllib.unescape(re.sub(r"<[^>]+>", " ", p))).strip()
              for p in re.findall(r"<p[^>]*>(.*?)</p>", h, re.S)]
     paras = [p.split("-->")[-1].strip() for p in paras]  # some pages glue inline scripts onto the lead paragraph
@@ -187,8 +238,8 @@ def _readings(sentence: str) -> list[dict[str, int]]:
     a, b = {}, {}
     for us, ue, unit in spans:
         before = [n for n in nums if n[1] <= us and not any(ue2 <= us and ue2 > n[1] for _, ue2, _ in spans)]
-        linked = re.search(r"\b(?:in|from|at|under|across)\b", s[before[-1][1]:us]) if before else None
-        if before and us - before[-1][1] <= 60 and (linked or re.match(r"(?:places\s+)?outside", s[us:ue])):
+        linked = re.search(r"\b(?:in|from|at|under|across|within)\b", s[before[-1][1]:us]) if before else None
+        if before and us - before[-1][1] <= 90 and (linked or re.match(r"(?:places\s+)?outside", s[us:ue])):
             a[unit] = a.get(unit, before[-1][2]) if a.get(unit, before[-1][2]) == before[-1][2] else -1
         after = [n for n in nums if n[0] >= ue and not any(us2 >= ue and us2 < n[0] for us2, _, _ in spans)]
         if after and after[0][0] - ue <= 80:
@@ -215,6 +266,12 @@ def area_counts(paras: list[str], total: int) -> tuple[dict[str, int] | None, st
     if len(found) > 1:
         return None, f"{len(found)} different readings sum to the total (ambiguous)"
     counts = dict(next(iter(found)))
+    # "No new dengue patients were reported in Sylhet division" states a zero explicitly
+    for s in sents + [s for s in _sentences(paras) if ZERO_RE.search(s)]:
+        if ZERO_RE.search(s):
+            for m in UNIT_RE.finditer(s):
+                unit = next(c for c, _ in UNITS if m.group(c))
+                counts.setdefault(unit, 0)
     if "DNCC" not in counts and "DSCC" not in counts and "DHAKA_DIV" in counts:
         counts[config.DHAKA_DIV_TOTAL] = counts.pop("DHAKA_DIV")  # Dhaka given as one figure incl. city corporations
     return counts, ""
@@ -237,6 +294,10 @@ def extract(url: str, raw: bytes) -> dict:
            "page_sha256": hashlib.sha256(raw).hexdigest(), "total": None, "cumulative": None, "counts": None, "status": "", "reason": ""}
     if not pub:
         return {**row, "status": "rejected", "reason": "no publication time"}
+    if pub.astimezone(BDT).hour < EARLIEST_HOUR_BDT:
+        return {**row, "status": "rejected", "reason": "published before noon BDT: usually the previous day's bulletin, so the date is ambiguous"}
+    if not re.search(r"dengue", " ".join([title] + paras[:3]), re.I):
+        return {**row, "status": "rejected", "reason": "headline and lead do not mention dengue (e.g. a measles bulletin)"}
     total, why = stated_total(title, paras)
     if total is None:
         return {**row, "status": "rejected", "reason": why or "no stated total"}
@@ -244,6 +305,8 @@ def extract(url: str, raw: bytes) -> dict:
     row.update(total=total, cumulative=cumulative(paras, total))
     if counts is None:
         return {**row, "status": "rejected", "reason": why}
+    if len(counts) < MIN_AREAS:
+        return {**row, "status": "rejected", "reason": f"only {len(counts)} area(s): not a national bulletin (e.g. a single hospital)"}
     row["_text"] = "\n".join([f"title: {title}", f"published: {row['published_bdt']}", f"url: {url}",
                               f"full_page_sha256: {row['page_sha256']}", ""] + paras)
     return {**row, "counts": counts, "status": "consistent"}
@@ -299,6 +362,28 @@ def reconcile(cands: list[dict], skip_dates: set[str]) -> tuple[pd.DataFrame, li
     return pd.DataFrame(rows), cands
 
 
+def retraction_rows(old: pd.DataFrame, new: pd.DataFrame, retrieved_at, reason: str) -> pd.DataFrame:
+    """Archive rows that withdraw previously ingested reprint values (empty value + note).
+
+    ``old`` and ``new`` are reprint files (daily_releases format). Every (date, unit)
+    ingested from ``old`` that ``new`` no longer contains is withdrawn, including the
+    date's NATIONAL row when the whole date is gone. Changed values need no
+    retraction: ingesting ``new`` appends them later in the file, which wins."""
+    old_keys = {(d, u) for d, u in zip(old["report_date"].astype(str), old["unit"])}
+    old_keys |= {(d, "NATIONAL") for d in old["report_date"].astype(str)}
+    new_keys = {(d, u) for d, u in zip(new["report_date"].astype(str), new["unit"])}
+    new_keys |= {(d, "NATIONAL") for d in new["report_date"].astype(str)}
+    rows = []
+    for d, u in sorted(old_keys - new_keys):
+        avail = pd.Timestamp(d, tz="UTC") + pd.Timedelta(hours=config.ASSUMED_PUBLICATION_HOUR_UTC)
+        rows.append({"unit": u, "reference_date": d, "period": "day", "metric": "admissions", "value": "",
+                     "source": "dghs_press_release", "source_url": "", "vintage_type": "first_reported",
+                     "available_at": avail.isoformat(), "available_at_basis": "assumed",
+                     "retrieved_at": pd.Timestamp(retrieved_at).isoformat(), "raw_sha256": f"retraction:{d}:{u}",
+                     "note": f"retracted auto-extracted reprint value: {reason}"})
+    return pd.DataFrame(rows, columns=archive.COLUMNS)
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--start", default="2026-01-01")
@@ -307,7 +392,7 @@ def main(argv=None) -> int:
     start, end = date.fromisoformat(args.start), date.fromisoformat(args.end)
     f = Fetcher()
     print("Discovering articles from sitemaps ...", flush=True)
-    urls = discover_bdnews(f, start, end) + discover_report(f, start, end)
+    urls = discover_dated(f, start, end) + discover_report(f, start, end)
     print(f"  {len(urls)} candidate articles", flush=True)
     cands = []
     for i, u in enumerate(urls, 1):

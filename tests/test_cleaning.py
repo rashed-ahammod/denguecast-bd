@@ -84,3 +84,14 @@ def test_daily_dhaka_total_from_parts_and_whole_figure_kept():
     wk = cleaning.add_dhaka_div_total(cleaning.daily_to_weekly(daily, log), log)
     w = wk.set_index("unit")["value"]
     assert w["DHAKA_DIV_TOTAL"] == 160.0 and np.isnan(w["DNCC"])  # whole Dhaka complete; parts incomplete
+
+
+def test_daily_dhaka_total_replaces_retracted_row_without_duplicates():
+    d = "2026-09-11"
+    daily = pd.DataFrame([{"unit": "DHAKA_DIV_TOTAL", "reference_date": d, "value": np.nan},  # retracted
+                          {"unit": "DHAKA_DIV", "reference_date": d, "value": 5.0},
+                          {"unit": "DNCC", "reference_date": d, "value": 3.0},
+                          {"unit": "DSCC", "reference_date": d, "value": 2.0}])
+    out = cleaning.add_daily_dhaka_total(daily)
+    tot = out[out["unit"] == "DHAKA_DIV_TOTAL"]
+    assert len(tot) == 1 and tot["value"].iloc[0] == 10.0

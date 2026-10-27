@@ -1,13 +1,149 @@
 Discovering articles from sitemaps ...
-  177 candidate articles
-  25/177 parsed
-  50/177 parsed
-  75/177 parsed
-  100/177 parsed
-  125/177 parsed
-  150/177 parsed
-  175/177 parsed
-Accepted 37 days (330 rows) -> data\manual\reprints_2026.csv; report -> results\reprints\reprints_report_2026-01-01_2026-10-17.csv
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-01-01.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-01-02.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-01-03.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-01-04.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-01-05.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-01-06.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-01-07.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-01-08.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-01-09.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-01-10.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-01-11.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-01-12.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-01-13.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-01-14.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-01-15.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-01-16.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-01-17.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-01-18.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-01-19.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-01-20.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-01-21.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-01-22.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-01-23.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-01-24.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-01-25.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-01-26.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-01-27.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-01-28.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-01-29.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-01-30.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-01-31.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-02-01.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-02-02.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-02-03.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-02-04.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-02-05.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-02-06.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-02-07.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-02-08.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-02-09.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-02-10.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-02-11.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-02-12.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-02-13.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-02-14.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-02-15.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-02-16.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-02-17.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-02-18.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-02-19.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-02-20.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-02-21.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-02-22.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-02-23.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-02-24.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-02-25.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-02-26.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-02-27.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-02-28.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-03-01.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-03-02.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-03-03.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-03-04.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-03-05.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-03-06.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-03-07.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-03-08.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-03-09.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-03-10.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-03-11.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-03-12.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-03-13.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-03-14.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-03-15.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-03-16.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-03-17.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-03-18.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-03-19.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-03-20.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-03-21.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-03-22.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-03-23.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-03-24.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-03-25.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-03-26.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-03-27.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-03-28.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-03-29.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-03-30.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-03-31.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-04-01.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-04-02.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-04-03.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-04-04.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-04-05.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-04-06.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-04-07.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-04-08.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-04-09.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-04-10.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-04-11.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-04-12.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-04-13.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-04-14.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-04-15.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-04-16.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-04-17.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-04-18.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-04-19.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-04-20.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-04-21.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-04-28.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-05-09.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-05-12.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-05-15.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-05-16.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-05-20.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-05-27.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-05-29.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-06-06.xml
+  HTTP 404 https://dailywaadaa.com/sitemap/sitemap-daily-2026-06-20.xml
+  584 candidate articles
+  25/584 parsed
+  50/584 parsed
+  75/584 parsed
+  100/584 parsed
+  125/584 parsed
+  150/584 parsed
+  175/584 parsed
+  200/584 parsed
+  225/584 parsed
+  250/584 parsed
+  275/584 parsed
+  300/584 parsed
+  325/584 parsed
+  350/584 parsed
+  375/584 parsed
+  400/584 parsed
+  425/584 parsed
+  450/584 parsed
+  475/584 parsed
+  500/584 parsed
+  525/584 parsed
+  575/584 parsed
+Accepted 44 days (371 rows) -> data\manual\reprints_2026.csv; report -> results\reprints\reprints_report_2026-01-01_2026-10-17.csv
 status
-rejected    126
-accepted     41
+rejected    496
+accepted     64
